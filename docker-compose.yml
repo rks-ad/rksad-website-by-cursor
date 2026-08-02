@@ -1,0 +1,61 @@
+services:
+  app:
+    build: .
+    container_name: rksad-website
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      PORT: "3000"
+      NODE_ENV: production
+      SITE_URL: ${SITE_URL:-https://rks.ad}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://rksad:rksad_secret@postgres:5432/rksad?schema=public}
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      FROM_EMAIL: ${FROM_EMAIL:-Notify@mails.rks.ad}
+      REDIS_URL: ${REDIS_URL:-}
+      COUNTER_FILE_PATH: /app/data/counter.json
+    volumes:
+      - rksad-counter-data:/app/data
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 25s
+
+  # Optional local Postgres — on Dokploy/Coolify you can omit this
+  # and point DATABASE_URL at your existing Prisma Postgres service.
+  postgres:
+    image: postgres:16-alpine
+    container_name: rksad-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-rksad}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-rksad_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-rksad}
+    volumes:
+      - rksad-pg-data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-rksad} -d ${POSTGRES_DB:-rksad}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  # Optional Redis for OTP (set REDIS_URL=redis://redis:6379)
+  redis:
+    image: redis:7-alpine
+    container_name: rksad-redis
+    profiles: ["redis"]
+    volumes:
+      - rksad-redis-data:/data
+    restart: unless-stopped
+
+volumes:
+  rksad-counter-data:
+  rksad-pg-data:
+  rksad-redis-data:
