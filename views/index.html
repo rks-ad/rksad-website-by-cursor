@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ravi Kumar Sharma - Advocate | RKS.Ad</title>
+    <meta name="description" content="Ravi Kumar Sharma - Experienced Advocate in Jaipur with 1200+ cases and 4.9 rating.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        body { font-family: system-ui, sans-serif; background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%); color: white; margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; }
+        .logo-letter { transition: all 0.4s ease; }
+        .logo-letter:hover { color: #00f5ff; text-shadow: 0 0 25px #00f5ff; transform: scale(1.1); }
+        .practice-pill { transition: all 0.3s ease; }
+        .practice-pill:hover { transform: translateY(-2px); }
+        .toast { animation: slideIn 0.4s ease forwards; touch-action: none; cursor: grab; user-select: none; }
+        .toast:active { cursor: grabbing; }
+        @keyframes slideIn { from { opacity:0; transform:translateX(var(--start-x)); } to { opacity:1; transform:translateX(0); } }
+        .toast-exit { animation: slideOut 0.35s ease forwards; }
+        @keyframes slideOut { to { opacity:0; transform:translateX(var(--end-x)); } }
+        .modal { animation: fadeInScale 0.2s ease forwards; }
+        @keyframes fadeInScale { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
+
+        /* ===== Photo reveal box ===== */
+        .photo-box {
+            width: 150px;
+            height: 150px;
+            border-radius: 22px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.25);
+            box-shadow: 0 20px 45px rgba(0,0,0,0.45);
+            cursor: pointer;
+            position: relative;
+            background: #111;
+        }
+        .photo-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: blur(11px);
+            transform: scale(1.12);
+            transition: filter 0.45s ease, transform 0.45s ease;
+        }
+        .photo-box:hover img,
+        .photo-box.is-clear img {
+            filter: blur(0);
+            transform: scale(1);
+        }
+        .photo-box .photo-hint {
+            position: absolute;
+            bottom: 6px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 10px;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.75);
+            text-transform: uppercase;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .photo-box:hover .photo-hint,
+        .photo-box.is-clear .photo-hint {
+            opacity: 0;
+        }
+
+        /* Floating Pay Button */
+        #pay-fab {
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.55);
+            animation: pulse-glow 2.5s ease-in-out infinite;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 25px rgba(16, 185, 129, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(16, 185, 129, 0.8); }
+        }
+    </style>
+</head>
+<body>
+    <div class="text-center w-full max-w-4xl px-6 relative z-10">
+
+        <!-- Logo -->
+        <div class="flex justify-center mb-6">
+            <img src="https://pub-1ed86eb4d93c4a50befdc06c2eb497c1.r2.dev/rks-adlogo%2Bfinal_comp.gif" 
+                 alt="RKS.Ad Logo" class="max-h-[90px] w-auto max-w-[200px]">
+        </div>
+
+        <!-- Profile Photo (blur reveal) -->
+        <div class="flex justify-center mb-6">
+            <div class="photo-box" id="photo-box" onclick="togglePhotoClear()">
+                <img src="https://pub-1ed86eb4d93c4a50befdc06c2eb497c1.r2.dev/rksphoto%20(2).JPG" alt="Ravi Kumar Sharma">
+                <span class="photo-hint">Tap / Hover</span>
+            </div>
+        </div>
+
+        <!-- Main Logo -->
+        <div class="text-7xl md:text-[9rem] font-bold tracking-tighter flex justify-center gap-4 mb-2" id="logo">
+            <span class="logo-letter text-white" data-name="RAAVI">R</span>
+            <span class="logo-letter text-white" data-name="K">K</span>
+            <span class="logo-letter text-white" data-name="SHARMA">S</span>
+            <span class="text-cyan-400">.</span>
+            <span class="logo-letter text-cyan-400" data-name="ADVOCATE">Ad</span>
+        </div>
+
+        <!-- Email under logo -->
+        <div class="mb-8">
+            <a href="mailto:iam@rks.ad" class="inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-all duration-300 text-lg font-medium hover:scale-105">
+                <i class="fa-solid fa-envelope"></i>
+                <span>iam@rks.ad</span>
+            </a>
+        </div>
+
+        <!-- Live Visitors -->
+        <div class="flex justify-center mb-8">
+            <div class="bg-zinc-900 border border-red-500/50 rounded-2xl px-5 py-2.5 flex items-center gap-3">
+                <span class="inline-block w-3 h-3 bg-red-500 rounded-full live-dot"></span>
+                <span class="text-red-400 font-medium text-sm md:text-base">LIVE VISITORS</span>
+                <span id="live-visitors" class="font-mono text-lg md:text-xl font-bold text-red-400">186</span>
+            </div>
+        </div>
+
+        <!-- Practice Areas -->
+        <div class="mb-8">
+            <div class="text-gray-400 text-xs tracking-[3px] mb-3">PRACTICE AREAS</div>
+            <div class="flex flex-wrap justify-center gap-2">
+                <div class="group relative"><div class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2"><i class="fa-solid fa-balance-scale text-emerald-400"></i><span>Civil</span></div></div>
+                <div class="group relative"><div class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2"><i class="fa-solid fa-gavel text-red-400"></i><span>Criminal</span></div></div>
+                <div class="group relative"><div class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2"><i class="fa-solid fa-building text-blue-400"></i><span>Corporate</span></div></div>
+                <div class="group relative"><div class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2"><i class="fa-solid fa-users text-pink-400"></i><span>Family</span></div></div>
+                <div class="group relative"><div class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2"><i class="fa-solid fa-landmark text-purple-400"></i><span>Tribunals</span></div></div>
+                <div class="group relative"><div class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2"><i class="fa-solid fa-folder-open text-amber-400"></i><span>Other Disputes</span></div></div>
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+            <button onclick="showPartnerModal()" class="flex items-center justify-center gap-3 px-7 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-3xl text-base font-medium">
+                <i class="fa-solid fa-handshake"></i> <span>Partner with RKS</span>
+            </button>
+            <a href="https://cal.id/lawup" target="_blank" class="flex items-center justify-center gap-3 px-7 py-4 bg-white/10 hover:bg-white/20 border border-white/40 rounded-3xl text-base font-medium">
+                <i class="fa-solid fa-calendar-days text-xl"></i> <span>Book Consultation</span>
+            </a>
+            <a href="https://ecourtsindia.com/advocate/ravi-kumar-sharma" target="_blank" class="flex items-center justify-center gap-3 px-7 py-4 bg-white/10 hover:bg-white/20 border border-white/40 rounded-3xl text-base font-medium">
+                <i class="fa-solid fa-gavel"></i> <span>See Cases</span>
+            </a>
+        </div>
+
+        <!-- Rating -->
+        <div class="text-4xl md:text-5xl flex items-center justify-center gap-3 mb-10">
+            <span class="text-yellow-400">4.9</span>
+            <span class="text-yellow-400">★★★★☆</span>
+        </div>
+
+        <!-- Total Visits -->
+        <div>
+            <div class="text-gray-400 tracking-widest text-sm mb-1">TOTAL VISITS TILL DATE</div>
+            <div id="live-counter" class="text-6xl md:text-7xl font-bold text-cyan-400">—</div>
+        </div>
+    </div>
+
+    <!-- ==================== FLOATING PAY BUTTON (raised above right toasts) ==================== -->
+    <button id="pay-fab" onclick="showPayModal()" 
+        class="fixed bottom-40 right-6 z-50 w-16 h-16 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full flex items-center justify-center text-3xl font-bold transition-all duration-300 hover:scale-110 active:scale-95 border-2 border-emerald-400/60">
+        ₹
+    </button>
+
+    <!-- ==================== PAY VIA UPI MODAL ==================== -->
+    <div id="pay-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
+        <div class="bg-zinc-900 border border-white/20 rounded-3xl p-7 w-full max-w-sm mx-4 modal">
+            <div class="flex justify-between items-center mb-5">
+                <h3 class="text-xl font-semibold flex items-center gap-2">
+                    <i class="fa-solid fa-indian-rupee-sign text-emerald-400"></i>
+                    Pay via UPI
+                </h3>
+                <button onclick="closePayModal()" class="text-gray-400 hover:text-white text-2xl leading-none">&times;</button>
+            </div>
+
+            <!-- QR Code -->
+            <div class="flex justify-center mb-5">
+                <div class="bg-white p-3 rounded-2xl">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=rksad@pnb&pn=Ravi%20Kumar%20Sharma&cu=INR" 
+                         alt="UPI QR Code" class="w-44 h-44 rounded-xl">
+                </div>
+            </div>
+
+            <!-- UPI ID -->
+            <div class="mb-4">
+                <div class="text-xs text-gray-400 mb-1.5 tracking-wider">UPI ID</div>
+                <div class="flex items-center gap-2">
+                    <div class="flex-1 bg-zinc-800 border border-white/20 rounded-xl px-4 py-3 font-mono text-emerald-400 text-sm">
+                        rksad@pnb
+                    </div>
+                    <button onclick="copyText('rksad@pnb', this)" class="bg-zinc-800 hover:bg-zinc-700 border border-white/20 rounded-xl px-3.5 py-3 text-white">
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- UPI Number -->
+            <div class="mb-6">
+                <div class="text-xs text-gray-400 mb-1.5 tracking-wider">UPI NUMBER</div>
+                <div class="flex items-center gap-2">
+                    <div class="flex-1 bg-zinc-800 border border-white/20 rounded-xl px-4 py-3 font-mono text-cyan-400 text-sm">
+                        910910001
+                    </div>
+                    <button onclick="copyText('910910001', this)" class="bg-zinc-800 hover:bg-zinc-700 border border-white/20 rounded-xl px-3.5 py-3 text-white">
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pay Now Button -->
+            <a href="upi://pay?pa=rksad@pnb&pn=Ravi%20Kumar%20Sharma&cu=INR" 
+               class="block w-full bg-emerald-600 hover:bg-emerald-500 text-white text-center py-3.5 rounded-2xl font-semibold text-lg transition-all active:scale-[0.98]">
+                <i class="fa-solid fa-bolt mr-2"></i> Pay Now
+            </a>
+
+            <p class="text-center text-xs text-gray-500 mt-4">
+                Works with GPay • PhonePe • Paytm • BHIM & all UPI apps
+            </p>
+        </div>
+    </div>
+
+    <!-- Partner Modal -->
+    <div id="partner-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
+        <div class="bg-zinc-900 border border-white/20 rounded-3xl p-8 w-full max-w-md mx-4 modal">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold">Partner with RKS</h3>
+                <button onclick="closePartnerModal()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+
+            <!-- Step 1: Email -->
+            <div id="step-email">
+                <p class="text-gray-400 mb-4 text-sm">Enter your email to receive OTP</p>
+                <input id="partner-email" type="email" placeholder="your@email.com" class="w-full bg-zinc-800 border border-white/30 rounded-2xl px-4 py-3 mb-4 text-white">
+                <button onclick="sendOTP()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-2xl font-medium">Send OTP</button>
+            </div>
+
+            <!-- Step 2: OTP -->
+            <div id="step-otp" class="hidden">
+                <p class="text-gray-400 mb-4 text-sm">Enter the 6-digit OTP sent to your email</p>
+                <input id="partner-otp" type="text" maxlength="6" placeholder="123456" class="w-full bg-zinc-800 border border-white/30 rounded-2xl px-4 py-3 mb-4 text-center text-2xl tracking-[8px]">
+                <button onclick="verifyOTP()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-2xl font-medium mb-3">Verify OTP</button>
+                <button onclick="resendOTP()" class="text-sm text-emerald-400 hover:underline">Resend OTP</button>
+            </div>
+
+            <!-- Step 3: Details Form -->
+            <div id="step-form" class="hidden">
+                <p class="text-gray-400 mb-4 text-sm">Please provide your details</p>
+                
+                <input id="form-name" type="text" placeholder="Full Name *" class="w-full bg-zinc-800 border border-white/30 rounded-2xl px-4 py-3 mb-3 text-white">
+                <input id="form-mobile" type="tel" maxlength="10" placeholder="Mobile Number (10 digits) *" class="w-full bg-zinc-800 border border-white/30 rounded-2xl px-4 py-3 mb-3 text-white">
+                <input id="form-city" type="text" placeholder="City" class="w-full bg-zinc-800 border border-white/30 rounded-2xl px-4 py-3 mb-3 text-white">
+                <input id="form-expertise" type="text" placeholder="Expertise Area" class="w-full bg-zinc-800 border border-white/30 rounded-2xl px-4 py-3 mb-3 text-white">
+                <input id="form-enrollment" type="text" placeholder="Enrollment No. / COP Number" class="w-full bg-zinc-800 border border-white/30 rounded-2xl px-4 py-3 mb-4 text-white">
+                
+                <button onclick="submitPartnerForm()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-2xl font-medium">Submit</button>
+            </div>
+
+            <!-- Final Success -->
+            <div id="step-success" class="hidden text-center py-6">
+                <i class="fa-solid fa-check-circle text-emerald-400 text-5xl mb-4"></i>
+                <h4 class="text-xl font-semibold mb-2">Thank You!</h4>
+                <p class="text-gray-400">Your details have been submitted successfully.<br>We will contact you soon.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Containers -->
+    <div id="toast-left" class="fixed bottom-5 left-4 md:left-6 z-[60] flex flex-col gap-3 w-full max-w-[260px] md:max-w-xs"></div>
+    <div id="toast-right" class="fixed bottom-5 right-4 md:right-6 z-[60] flex flex-col gap-3 w-full max-w-[260px] md:max-w-xs"></div>
+
+    <script>
+        // ==================== PHOTO BLUR REVEAL ====================
+        function togglePhotoClear() {
+            document.getElementById('photo-box').classList.toggle('is-clear');
+        }
+
+        // ==================== PAY MODAL ====================
+        function showPayModal() {
+            document.getElementById('pay-modal').classList.remove('hidden');
+            document.getElementById('pay-modal').classList.add('flex');
+        }
+
+        function closePayModal() {
+            document.getElementById('pay-modal').classList.add('hidden');
+            document.getElementById('pay-modal').classList.remove('flex');
+        }
+
+        function copyText(text, btn) {
+            navigator.clipboard.writeText(text).then(() => {
+                const original = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check text-emerald-400"></i>';
+                setTimeout(() => btn.innerHTML = original, 1500);
+            });
+        }
+
+        // ==================== TOAST SYSTEM ====================
+        let indianNames = [
+            "Aarav Sharma", "Vivaan Patel", "Aditya Kumar", "Vihaan Singh", "Arjun Reddy",
+            "Reyansh Gupta", "Krishna Verma", "Ishaan Malhotra", "Ananya Iyer", "Dhruv Joshi",
+            "Aadhya Nair", "Saanvi Mehta", "Prisha Kapoor", "Myra Choudhary", "Aarohi Das",
+            "Rohan Mehra", "Kiaan Bhatia", "Ayaan Khan", "Advik Rao", "Rudra Saxena",
+            "Siya Malhotra", "Pari Kapoor", "Anika Sharma", "Navya Reddy", "Aarav Choudhary",
+            "Vivaan Singh", "Aditya Patel", "Vihaan Kumar", "Arjun Gupta", "Reyansh Verma",
+            "Krishna Malhotra", "Ishaan Joshi", "Ananya Nair", "Dhruv Iyer", "Aadhya Mehta",
+            "Saanvi Das", "Prisha Rao", "Myra Saxena", "Aarohi Khan", "Rohan Bhatia",
+            "Kiaan Mehra", "Ayaan Sharma", "Advik Patel", "Rudra Kumar", "Siya Gupta",
+            "Pari Verma", "Anika Malhotra", "Navya Joshi", "Aarav Nair", "Vivaan Iyer",
+            "Aditya Mehta", "Vihaan Das", "Arjun Rao", "Reyansh Saxena", "Krishna Khan",
+            "Ishaan Bhatia", "Ananya Mehra", "Dhruv Sharma", "Aadhya Patel", "Saanvi Kumar",
+            "Prisha Gupta", "Myra Verma", "Aarohi Malhotra", "Rohan Joshi", "Kiaan Nair",
+            "Ayaan Iyer", "Advik Mehta", "Rudra Das", "Siya Rao", "Pari Saxena",
+            "Anika Khan", "Navya Bhatia", "Aarav Mehra"
+        ];
+
+        function shuffle(arr) {
+            const a = arr.slice();
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        function makeNameBag() {
+            let bag = shuffle(indianNames);
+            return function nextName() {
+                if (bag.length === 0) bag = shuffle(indianNames);
+                return bag.pop();
+            };
+        }
+
+        const getLeftName = makeNameBag();
+        const getRightName = makeNameBag();
+
+        const MAX_LEFT_TOASTS = 3;
+        const MAX_RIGHT_TOASTS = 2;
+        const TOAST_VISIBLE_MS = 4500;
+        const TOAST_INTERVAL_MS = 10000;
+        const SWIPE_DISMISS_PX = 70;
+        const SWIPE_DISMISS_VELOCITY = 0.5;
+
+        function makeSwipeable(toast, cancelAutoDismiss) {
+            let startX = 0, dx = 0, dragging = false, startTime = 0;
+
+            toast.addEventListener('pointerdown', (e) => {
+                dragging = true;
+                startX = e.clientX;
+                dx = 0;
+                startTime = Date.now();
+                toast.style.transition = 'none';
+                toast.setPointerCapture(e.pointerId);
+            });
+
+            toast.addEventListener('pointermove', (e) => {
+                if (!dragging) return;
+                dx = e.clientX - startX;
+                toast.style.transform = 'translateX(' + dx + 'px)';
+                toast.style.opacity = String(Math.max(0.15, 1 - Math.abs(dx) / 220));
+            });
+
+            function release() {
+                if (!dragging) return;
+                dragging = false;
+                const elapsed = Math.max(1, Date.now() - startTime);
+                const velocity = Math.abs(dx) / elapsed;
+
+                if (Math.abs(dx) > SWIPE_DISMISS_PX || velocity > SWIPE_DISMISS_VELOCITY) {
+                    cancelAutoDismiss();
+                    const flyTo = dx < 0 ? -400 : 400;
+                    toast.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
+                    toast.style.transform = 'translateX(' + flyTo + 'px)';
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 200);
+                } else {
+                    toast.style.transition = 'transform 0.25s ease, opacity 0.25s ease';
+                    toast.style.transform = 'translateX(0)';
+                    toast.style.opacity = '1';
+                }
+            }
+
+            toast.addEventListener('pointerup', release);
+            toast.addEventListener('pointercancel', release);
+        }
+
+        function showLeftToast() {
+            const container = document.getElementById('toast-left');
+            if (container.children.length >= MAX_LEFT_TOASTS) return;
+
+            const name = getLeftName();
+            const toast = document.createElement('div');
+            toast.className = 'toast w-full max-w-[260px] md:max-w-xs bg-zinc-900 border border-emerald-500/60 text-white px-4 py-3 rounded-2xl flex items-start gap-3 shadow-2xl';
+            toast.style.setProperty('--start-x', '-120%');
+            toast.style.setProperty('--end-x', '-150%');
+
+            toast.innerHTML =
+                '<div class="text-emerald-400 mt-0.5 flex-shrink-0">' +
+                    '<i class="fa-solid fa-calendar-check text-xl"></i>' +
+                '</div>' +
+                '<div class="text-sm leading-snug">' +
+                    '<span class="font-semibold">' + name + '</span> has just booked a consultation' +
+                '</div>';
+
+            container.appendChild(toast);
+
+            const autoDismiss = setTimeout(() => {
+                toast.classList.add('toast-exit');
+                setTimeout(() => toast.remove(), 350);
+            }, TOAST_VISIBLE_MS);
+
+            makeSwipeable(toast, () => clearTimeout(autoDismiss));
+        }
+
+        function showRightToast() {
+            const container = document.getElementById('toast-right');
+            if (container.children.length >= MAX_RIGHT_TOASTS) return;
+
+            const name = getRightName();
+            const rating = (Math.random() > 0.35) ? "4.9" : "5.0";
+
+            const toast = document.createElement('div');
+            toast.className = 'toast w-full max-w-[260px] md:max-w-xs bg-zinc-900 border border-yellow-500/60 text-white px-4 py-3 rounded-2xl flex items-start gap-3 shadow-2xl';
+            toast.style.setProperty('--start-x', '120%');
+            toast.style.setProperty('--end-x', '150%');
+
+            toast.innerHTML =
+                '<div class="text-yellow-400 mt-0.5 flex-shrink-0">' +
+                    '<i class="fa-solid fa-star text-xl"></i>' +
+                '</div>' +
+                '<div class="text-sm leading-snug">' +
+                    '<span class="font-semibold">' + name + '</span> rated <span class="font-bold text-yellow-400">' + rating + '</span> ★★★★★' +
+                '</div>';
+
+            container.appendChild(toast);
+
+            const autoDismiss = setTimeout(() => {
+                toast.classList.add('toast-exit');
+                setTimeout(() => toast.remove(), 350);
+            }, TOAST_VISIBLE_MS);
+
+            makeSwipeable(toast, () => clearTimeout(autoDismiss));
+        }
+
+        let toastEngineStarted = false;
+        let nextSide = 'left';
+
+        function fireNextToast() {
+            if (nextSide === 'left') {
+                showLeftToast();
+                nextSide = 'right';
+            } else {
+                showRightToast();
+                nextSide = 'left';
+            }
+            setTimeout(fireNextToast, TOAST_INTERVAL_MS);
+        }
+
+        function startToastNotifications() {
+            if (toastEngineStarted) return;
+            toastEngineStarted = true;
+            setTimeout(fireNextToast, 3000);
+        }
+
+        // Logo hover tooltips
+        document.querySelectorAll('.logo-letter').forEach(function(el) {
+            el.addEventListener('mouseenter', function() {
+                var tip = document.createElement('div');
+                tip.textContent = this.getAttribute('data-name');
+                tip.style.cssText = 'position:absolute;background:#00f5ff;color:#000;padding:8px 22px;border-radius:50px;font-weight:700;font-size:15px;z-index:9999;white-space:nowrap;box-shadow:0 10px 30px rgba(0,245,255,0.5);';
+                document.body.appendChild(tip);
+                var rect = this.getBoundingClientRect();
+                tip.style.left = (rect.left + window.scrollX + (rect.width/2) - (tip.offsetWidth/2)) + 'px';
+                tip.style.top = (rect.top + window.scrollY - 55) + 'px';
+                setTimeout(function(){ tip.remove(); }, 1600);
+            });
+        });
+
+        function randomLiveVisitors() {
+            const el = document.getElementById('live-visitors');
+            let previous = 186;
+            setInterval(() => {
+                let randomNum;
+                do {
+                    randomNum = Math.floor(Math.random() * (1350 - 8 + 1)) + 8;
+                } while (randomNum === previous);
+                el.textContent = randomNum;
+                previous = randomNum;
+            }, 2400);
+        }
+
+        // ==================== PARTNER MODAL ====================
+        let currentPartnerEmail = "";
+
+        function showPartnerModal() {
+            document.getElementById('partner-modal').classList.remove('hidden');
+            document.getElementById('partner-modal').classList.add('flex');
+            document.getElementById('step-email').classList.remove('hidden');
+            document.getElementById('step-otp').classList.add('hidden');
+            document.getElementById('step-form').classList.add('hidden');
+            document.getElementById('step-success').classList.add('hidden');
+        }
+
+        function closePartnerModal() {
+            document.getElementById('partner-modal').classList.add('hidden');
+            document.getElementById('partner-modal').classList.remove('flex');
+        }
+
+        async function sendOTP() {
+            const email = document.getElementById('partner-email').value.trim();
+            if (!email) return alert("Please enter email");
+
+            const res = await fetch('/api/send-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+
+            if (res.ok) {
+                currentPartnerEmail = email;
+                document.getElementById('step-email').classList.add('hidden');
+                document.getElementById('step-otp').classList.remove('hidden');
+            } else {
+                alert("Failed to send OTP");
+            }
+        }
+
+        async function verifyOTP() {
+            const otp = document.getElementById('partner-otp').value.trim();
+
+            const res = await fetch('/api/verify-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: currentPartnerEmail, otp })
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                document.getElementById('step-otp').classList.add('hidden');
+                document.getElementById('step-form').classList.remove('hidden');
+            } else {
+                alert(data.message || "Invalid or expired OTP");
+            }
+        }
+
+        function resendOTP() {
+            document.getElementById('step-otp').classList.add('hidden');
+            document.getElementById('step-email').classList.remove('hidden');
+        }
+
+        async function submitPartnerForm() {
+            const name = document.getElementById('form-name').value.trim();
+            const mobile = document.getElementById('form-mobile').value.trim();
+            const city = document.getElementById('form-city').value.trim();
+            const expertise = document.getElementById('form-expertise').value.trim();
+            const enrollment = document.getElementById('form-enrollment').value.trim();
+
+            if (!name) { alert("Name is required"); return; }
+            if (!mobile || mobile.length !== 10) { alert("Please enter a valid 10-digit mobile number"); return; }
+
+            const res = await fetch('/api/submit-partner', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: currentPartnerEmail,
+                    name: name,
+                    mobile: mobile,
+                    city: city,
+                    expertise: expertise,
+                    enrollment: enrollment
+                })
+            });
+
+            if (res.ok) {
+                document.getElementById('step-form').classList.add('hidden');
+                document.getElementById('step-success').classList.remove('hidden');
+            } else {
+                alert("Submission failed. Please try again.");
+            }
+        }
+
+        async function loadCounter() {
+            const el = document.getElementById('live-counter');
+            el.innerHTML = '•••';
+            try {
+                let res = await fetch('/api/counter');
+                let data = await res.json();
+                el.textContent = Number(data.count).toLocaleString('en-IN');
+            } catch(e) {
+                el.innerHTML = '•••';
+            }
+        }
+
+        window.onload = function() {
+            loadCounter();
+            randomLiveVisitors();
+            startToastNotifications();
+        };
+    </script>
+</body>
+</html>

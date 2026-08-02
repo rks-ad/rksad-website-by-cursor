@@ -1,0 +1,15 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// Single-row page view counter (replaces Cloudflare KV).
+model page_views {
+  id         Int      @id @default(1)
+  count      BigInt   @default(0)
+  updated_at DateTime @updatedAt
+}
