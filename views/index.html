@@ -295,50 +295,85 @@
         }
 
         // ==================== TOAST SYSTEM ====================
-        let indianNames = [
-            "Aarav Sharma", "Vivaan Patel", "Aditya Kumar", "Vihaan Singh", "Arjun Reddy",
-            "Reyansh Gupta", "Krishna Verma", "Ishaan Malhotra", "Ananya Iyer", "Dhruv Joshi",
-            "Aadhya Nair", "Saanvi Mehta", "Prisha Kapoor", "Myra Choudhary", "Aarohi Das",
-            "Rohan Mehra", "Kiaan Bhatia", "Ayaan Khan", "Advik Rao", "Rudra Saxena",
-            "Siya Malhotra", "Pari Kapoor", "Anika Sharma", "Navya Reddy", "Aarav Choudhary",
-            "Vivaan Singh", "Aditya Patel", "Vihaan Kumar", "Arjun Gupta", "Reyansh Verma",
-            "Krishna Malhotra", "Ishaan Joshi", "Ananya Nair", "Dhruv Iyer", "Aadhya Mehta",
-            "Saanvi Das", "Prisha Rao", "Myra Saxena", "Aarohi Khan", "Rohan Bhatia",
-            "Kiaan Mehra", "Ayaan Sharma", "Advik Patel", "Rudra Kumar", "Siya Gupta",
-            "Pari Verma", "Anika Malhotra", "Navya Joshi", "Aarav Nair", "Vivaan Iyer",
-            "Aditya Mehta", "Vihaan Das", "Arjun Rao", "Reyansh Saxena", "Krishna Khan",
-            "Ishaan Bhatia", "Ananya Mehra", "Dhruv Sharma", "Aadhya Patel", "Saanvi Kumar",
-            "Prisha Gupta", "Myra Verma", "Aarohi Malhotra", "Rohan Joshi", "Kiaan Nair",
-            "Ayaan Iyer", "Advik Mehta", "Rudra Das", "Siya Rao", "Pari Saxena",
-            "Anika Khan", "Navya Bhatia", "Aarav Mehra"
+        const FIRST_NAMES = [
+            // Male-leaning
+            "Aarav", "Vivaan", "Aditya", "Vihaan", "Arjun", "Reyansh", "Krishna", "Ishaan", "Dhruv", "Rohan",
+            "Kiaan", "Ayaan", "Advik", "Rudra", "Kabir", "Shaurya", "Atharv", "Vedant", "Yuvan", "Rian",
+            "Devansh", "Harsh", "Kunal", "Nikhil", "Rahul", "Siddharth", "Varun", "Ankit", "Aman", "Rajat",
+            "Manav", "Pranav", "Ishan", "Kartik", "Yash", "Omkar", "Samar", "Tanish", "Darsh", "Neil",
+            "Aryan", "Rishi", "Parth", "Laksh", "Veer", "Jai", "Arnav", "Samarth", "Raghav", "Abhinav",
+            "Akash", "Nitin", "Gaurav", "Vishal", "Suresh", "Deepak", "Vikram", "Mohit", "Puneet", "Saurabh",
+            "Hemant", "Ashwin", "Naveen", "Karan", "Rajesh", "Sanjay", "Amit", "Vivek", "Anirudh", "Tejas",
+            "Hrithik", "Uday", "Chirag", "Bhavesh", "Jayesh", "Mihir", "Nirav", "Pratik", "Ritesh", "Tanmay",
+            "Yuvraj", "Zayan", "Farhan", "Imran", "Rehan", "Sahil", "Tushar", "Utkarsh", "Vatsal", "Waseem",
+            // Female-leaning
+            "Ananya", "Aadhya", "Saanvi", "Prisha", "Myra", "Aarohi", "Siya", "Pari", "Anika", "Navya",
+            "Diya", "Ira", "Kiara", "Aisha", "Meera", "Nisha", "Riya", "Sara", "Tara", "Vanya",
+            "Ishita", "Kavya", "Lavanya", "Mahika", "Naina", "Oviya", "Pooja", "Radhika", "Shreya", "Trisha",
+            "Aditi", "Bhavya", "Chitra", "Divya", "Esha", "Fatima", "Gayatri", "Hina", "Isha", "Janhvi",
+            "Khushi", "Leela", "Mira", "Neha", "Ojasvi", "Pallavi", "Qirat", "Rhea", "Sneha", "Tanvi",
+            "Urvi", "Vidya", "Wamika", "Yashika", "Zara", "Aaradhya", "Avni", "Charvi", "Drishti", "Ekta",
+            "Fiza", "Gargi", "Harini", "Inaya", "Jiya", "Kritika", "Lipika", "Manvi", "Nandini", "Oorja",
+            "Priya", "Ritika", "Swara", "Tanya", "Uma", "Vaishnavi", "Yuvika", "Zoya", "Aanya", "Bhumi",
+            "Charu", "Damini", "Eesha", "Falak", "Gauri", "Heer", "Indira", "Jhanvi", "Kanika", "Lata",
+            "Mahi", "Nidhi", "Ojal", "Pragya", "Ranjita", "Suhana", "Tanisha", "Urmi", "Veda", "Yamini"
         ];
 
-        function shuffle(arr) {
-            const a = arr.slice();
-            for (let i = a.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [a[i], a[j]] = [a[j], a[i]];
+        const SURNAMES = [
+            "Sharma", "Patel", "Kumar", "Singh", "Reddy", "Gupta", "Verma", "Malhotra", "Iyer", "Joshi",
+            "Nair", "Mehta", "Kapoor", "Choudhary", "Das", "Mehra", "Bhatia", "Khan", "Rao", "Saxena",
+            "Agarwal", "Banerjee", "Chatterjee", "Desai", "Chopra", "Dubey", "Fernandes", "Ghosh", "Hegde", "Jain",
+            "Kulkarni", "Lal", "Mishra", "Nayak", "Oberoi", "Pandey", "Qureshi", "Rajput", "Shetty", "Tiwari",
+            "Uppal", "Vaidya", "Wadhwa", "Yadav", "Bansal", "Bhatt", "Chauhan", "Dutta", "Gandhi", "Iyer",
+            "Jha", "Kashyap", "Luthra", "Menon", "Naidu", "Pillai", "Rathore", "Sinha", "Trivedi", "Varma",
+            "Anand", "Bose", "Chawla", "Dixit", "Goel", "Khanna", "Mittal", "Narayan", "Puri", "Rastogi",
+            "Sehgal", "Thakur", "Vohra", "Arora", "Bajaj", "Dhingra", "Gill", "Kohli", "Mahajan", "Saini",
+            "Ahuja", "Bhargava", "Chandra", "Dewan", "Grewal", "Iqbal", "Jindal", "Khatri", "Mundra", "Sethi",
+            "Talwar", "Vyas", "Zachariah", "Mukherjee", "Chakraborty", "Srivastava", "Tripathi", "Bhalla"
+        ];
+
+        const usedToastNames = new Set();
+        const MAX_USED_NAMES = 400;
+
+        function randomFullName() {
+            let attempts = 0;
+            while (attempts < 40) {
+                const first = FIRST_NAMES[Math.floor(Math.random() * FIRST_NAMES.length)];
+                const last = SURNAMES[Math.floor(Math.random() * SURNAMES.length)];
+                const full = first + ' ' + last;
+                if (!usedToastNames.has(full)) {
+                    usedToastNames.add(full);
+                    if (usedToastNames.size > MAX_USED_NAMES) {
+                        const oldest = usedToastNames.values().next().value;
+                        usedToastNames.delete(oldest);
+                    }
+                    return full;
+                }
+                attempts++;
             }
-            return a;
+            // Extremely unlikely fallback
+            return FIRST_NAMES[Math.floor(Math.random() * FIRST_NAMES.length)] + ' ' +
+                SURNAMES[Math.floor(Math.random() * SURNAMES.length)];
         }
-
-        function makeNameBag() {
-            let bag = shuffle(indianNames);
-            return function nextName() {
-                if (bag.length === 0) bag = shuffle(indianNames);
-                return bag.pop();
-            };
-        }
-
-        const getLeftName = makeNameBag();
-        const getRightName = makeNameBag();
 
         const MAX_LEFT_TOASTS = 3;
         const MAX_RIGHT_TOASTS = 2;
         const TOAST_VISIBLE_MS = 4500;
-        const TOAST_INTERVAL_MS = 10000;
         const SWIPE_DISMISS_PX = 70;
         const SWIPE_DISMISS_VELOCITY = 0.5;
+
+        /** Irregular but realistic gaps: pick a range, then a delay inside it. */
+        const TOAST_INTERVAL_RANGES = [
+            [5000, 8000],
+            [8000, 12000],
+            [12000, 15000],
+            [15000, 20000]
+        ];
+
+        function nextToastDelay() {
+            const range = TOAST_INTERVAL_RANGES[Math.floor(Math.random() * TOAST_INTERVAL_RANGES.length)];
+            return range[0] + Math.floor(Math.random() * (range[1] - range[0] + 1));
+        }
 
         function makeSwipeable(toast, cancelAutoDismiss) {
             let startX = 0, dx = 0, dragging = false, startTime = 0;
@@ -387,7 +422,7 @@
             const container = document.getElementById('toast-left');
             if (container.children.length >= MAX_LEFT_TOASTS) return;
 
-            const name = getLeftName();
+            const name = randomFullName();
             const toast = document.createElement('div');
             toast.className = 'toast w-full max-w-[260px] md:max-w-xs bg-zinc-900 border border-emerald-500/60 text-white px-4 py-3 rounded-2xl flex items-start gap-3 shadow-2xl';
             toast.style.setProperty('--start-x', '-120%');
@@ -415,7 +450,7 @@
             const container = document.getElementById('toast-right');
             if (container.children.length >= MAX_RIGHT_TOASTS) return;
 
-            const name = getRightName();
+            const name = randomFullName();
             const rating = (Math.random() > 0.35) ? "4.9" : "5.0";
 
             const toast = document.createElement('div');
@@ -442,23 +477,30 @@
         }
 
         let toastEngineStarted = false;
-        let nextSide = 'left';
+        let lastToastSide = null;
+
+        function pickToastSide() {
+            // Never show two toasts back-to-back on the same side
+            if (lastToastSide === 'left') return 'right';
+            if (lastToastSide === 'right') return 'left';
+            return Math.random() < 0.55 ? 'left' : 'right';
+        }
 
         function fireNextToast() {
-            if (nextSide === 'left') {
+            const side = pickToastSide();
+            if (side === 'left') {
                 showLeftToast();
-                nextSide = 'right';
             } else {
                 showRightToast();
-                nextSide = 'left';
             }
-            setTimeout(fireNextToast, TOAST_INTERVAL_MS);
+            lastToastSide = side;
+            setTimeout(fireNextToast, nextToastDelay());
         }
 
         function startToastNotifications() {
             if (toastEngineStarted) return;
             toastEngineStarted = true;
-            setTimeout(fireNextToast, 3000);
+            setTimeout(fireNextToast, 2500 + Math.floor(Math.random() * 2500));
         }
 
         // Logo hover tooltips
@@ -477,15 +519,32 @@
 
         function randomLiveVisitors() {
             const el = document.getElementById('live-visitors');
-            let previous = 186;
-            setInterval(() => {
-                let randomNum;
-                do {
-                    randomNum = Math.floor(Math.random() * (1350 - 8 + 1)) + 8;
-                } while (randomNum === previous);
-                el.textContent = randomNum;
-                previous = randomNum;
-            }, 2400);
+            let previous = 40 + Math.floor(Math.random() * 120);
+            el.textContent = String(previous);
+
+            function tick() {
+                let next;
+                const r = Math.random();
+                if (r < 0.72) {
+                    // Gentle drift inside the normal band (40–280)
+                    const delta = Math.floor(Math.random() * 35) - 17;
+                    next = Math.min(280, Math.max(40, previous + delta));
+                } else if (r < 0.9) {
+                    // Fresh pick in normal band
+                    next = 40 + Math.floor(Math.random() * (280 - 40 + 1));
+                } else {
+                    // Occasional spike
+                    next = 400 + Math.floor(Math.random() * (700 - 400 + 1));
+                }
+                if (next === previous) next = previous + (Math.random() < 0.5 ? 1 : -1);
+                if (next < 40) next = 40;
+                el.textContent = String(next);
+                previous = next;
+                const delay = 1800 + Math.floor(Math.random() * 2200);
+                setTimeout(tick, delay);
+            }
+
+            setTimeout(tick, 2000 + Math.floor(Math.random() * 1500));
         }
 
         // ==================== PARTNER MODAL ====================
@@ -579,13 +638,35 @@
             }
         }
 
+        function animateCounter(el, target) {
+            const end = Math.max(0, Math.floor(Number(target) || 0));
+            const start = Math.max(0, Math.floor(end * 0.94));
+            const duration = 1100;
+            const startTs = performance.now();
+
+            function frame(now) {
+                const t = Math.min(1, (now - startTs) / duration);
+                // easeOutCubic
+                const eased = 1 - Math.pow(1 - t, 3);
+                const value = Math.round(start + (end - start) * eased);
+                el.textContent = value.toLocaleString('en-IN');
+                if (t < 1) {
+                    requestAnimationFrame(frame);
+                } else {
+                    el.textContent = end.toLocaleString('en-IN');
+                }
+            }
+
+            requestAnimationFrame(frame);
+        }
+
         async function loadCounter() {
             const el = document.getElementById('live-counter');
             el.innerHTML = '•••';
             try {
                 let res = await fetch('/api/counter');
                 let data = await res.json();
-                el.textContent = Number(data.count).toLocaleString('en-IN');
+                animateCounter(el, data.count);
             } catch(e) {
                 el.innerHTML = '•••';
             }
