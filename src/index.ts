@@ -30,24 +30,41 @@ const SITE_URL = (process.env.SITE_URL || "https://rks.ad").replace(/\/$/, "");
 const app = new Hono();
 
 // --- SEO ---
-app.get("/robots.txt", (c) => {
-  return c.text(`User-agent: *\nAllow: /\nSitemap: ${SITE_URL}/sitemap.xml`, 200, {
-    "Content-Type": "text/plain",
-  });
-});
-
 app.get("/sitemap.xml", (c) => {
+  const lastmod = new Date().toISOString().slice(0, 10);
   const sitemap =
     `<?xml version="1.0" encoding="UTF-8"?>\n` +
     `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
     `    <url>\n` +
     `        <loc>${SITE_URL}/</loc>\n` +
-    `        <lastmod>2026-07-02</lastmod>\n` +
-    `        <changefreq>weekly</changefreq>\n` +
+    `        <lastmod>${lastmod}</lastmod>\n` +
+    `        <changefreq>daily</changefreq>\n` +
     `        <priority>1.0</priority>\n` +
     `    </url>\n` +
     `</urlset>`;
-  return c.body(sitemap, 200, { "Content-Type": "application/xml" });
+  return c.body(sitemap, 200, {
+    "Content-Type": "application/xml; charset=utf-8",
+    "Cache-Control": "public, max-age=3600",
+  });
+});
+
+app.get("/robots.txt", (c) => {
+  return c.text(
+    [
+      "User-agent: *",
+      "Allow: /",
+      "Disallow: /api/",
+      "Disallow: /health",
+      "",
+      `Sitemap: ${SITE_URL}/sitemap.xml`,
+      "",
+    ].join("\n"),
+    200,
+    {
+      "Content-Type": "text/plain; charset=utf-8",
+      "Cache-Control": "public, max-age=86400",
+    }
+  );
 });
 
 // --- API ---
