@@ -84,7 +84,18 @@ app.get("/api/counter", async (c) => {
 });
 
 // --- Health (useful for Docker / Dokploy probes) ---
-app.get("/health", (c) => c.json({ ok: true }));
+app.get("/health", (c) => {
+  const key = process.env.RESEND_API_KEY?.trim() || "";
+  const emailConfigured =
+    Boolean(key) && !key.includes("xxxx") && key !== "re_xxxxxxxxxxxxxxxxxxxxxxxx";
+  return c.json({
+    ok: true,
+    hasDatabaseUrl: Boolean(process.env.DATABASE_URL),
+    emailConfigured,
+    fromEmail: process.env.FROM_EMAIL || "Notify@mails.rks.ad",
+    partnerNotifyEmail: process.env.PARTNER_NOTIFY_EMAIL || "iam@rks.ad",
+  });
+});
 
 // --- SPA / home ---
 app.get("*", (c) => {
