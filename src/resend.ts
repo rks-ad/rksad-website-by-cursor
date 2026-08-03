@@ -2,6 +2,12 @@
  * Thin Resend API wrapper with clearer errors for OTP / partner flows.
  */
 
+import {
+  getResendApiKey,
+  isPlaceholderResendKey,
+  envString,
+} from "./env.js";
+
 export class EmailSendError extends Error {
   status: number;
   details: string;
@@ -20,29 +26,34 @@ export async function sendEmail(options: {
   html: string;
   replyTo?: string;
 }): Promise<void> {
-  const apiKey = process.env.RESEND_API_KEY?.trim();
+  const apiKey = getResendApiKey();
+
   if (!apiKey) {
+    // Help operators see which related env names exist (without leaking values)
+    const related = Object.keys(process.env)
+      .filter((k) => /resend/i.test(k))
+      .sort();
+    console.error("[email] RESEND_API_KEY missing at runtime. Related env names:", related);
     throw new EmailSendError(
-      "Email is not configured (RESEND_API_KEY missing). Set it in Dokploy/Coolify.",
+      "Email is not configured (RESEND_API_KEY missing in the running container). " +
+        "In Dokploy/Coolify set RESEND_API_KEY on this service as a runtime environment variable, then Redeploy. " +
+        "Check /health → resendKeyPresent.",
       500
     );
   }
 
-  if (
-    apiKey.includes("xxxx") ||
-    apiKey === "re_xxxxxxxxxxxxxxxxxxxxxxxx"
-  ) {
+  if (isPlaceholderResendKey(apiKey)) {
     throw new EmailSendError(
-      "RESEND_API_KEY looks like a placeholder. Use your real Resend API key.",
+      "RESEND_API_KEY looks like a placeholder. Paste your real Resend key (starts with re_).",
       500
     );
   }
 
-  const fromEmail = (process.env.FROM_EMAIL || "Notify@mails.rks.ad").trim();
-  const fromName = (process.env.FROM_NAME || "RKS.Ad Notify").trim();
+  const fromEmail = envString("FROM_EMAIL") || "Notify@mails.rks.ad";
+  const fromName = envString("FROM_NAME") || "RKS.Ad Notify";
   const replyTo =
     options.replyTo ||
-    process.env.PARTNER_NOTIFY_EMAIL ||
+    envString("PARTNER_NOTIFY_EMAIL") ||
     "iam@rks.ad";
 
   const res = await fetch("https://api.resend.com/emails", {
@@ -71,12 +82,16 @@ export async function sendEmail(options: {
       if (body) message = body.slice(0, 240);
     }
 
-    // Common production misconfig: unverified sending domain
+    if (res.status === 401) {
+      message =
+        "Resend rejected the API key (401). Double-check RESEND_API_KEY in Dokploy/Coolify (no extra spaces/quotes).";
+    }
+
     if (res.status === 403 || /domain|verified|not allowed/i.test(message)) {
       message =
         `${message} — verify that FROM_EMAIL (${fromEmail}) uses a domain verified in Resend.`;
     }
 
-    throw new EmailSendError(message, res.status >= 400 ? res.status : 500, body);
+    throw new EmailSendError(message, res.status >= 400 && res.status < 600 ? res.status : 500, body);
   }
 }
