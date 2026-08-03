@@ -762,24 +762,37 @@
         async function sendOTP() {
             const email = document.getElementById('partner-email').value.trim();
             if (!email) return alert("Please enter email");
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return alert("Please enter a valid email address");
 
-            const res = await fetch('/api/send-otp', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email })
-            });
+            const btn = document.querySelector('#step-email button');
+            const oldLabel = btn ? btn.innerHTML : '';
+            if (btn) { btn.disabled = true; btn.innerHTML = 'Sending…'; }
 
-            if (res.ok) {
-                currentPartnerEmail = email;
-                document.getElementById('step-email').classList.add('hidden');
-                document.getElementById('step-otp').classList.remove('hidden');
-            } else {
-                alert("Failed to send OTP");
+            try {
+                const res = await fetch('/api/send-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await res.json().catch(() => ({}));
+
+                if (res.ok && data.success !== false) {
+                    currentPartnerEmail = email;
+                    document.getElementById('step-email').classList.add('hidden');
+                    document.getElementById('step-otp').classList.remove('hidden');
+                } else {
+                    alert(data.message || "Failed to send OTP. Please try again.");
+                }
+            } catch (e) {
+                alert("Failed to send OTP. Please check your connection and try again.");
+            } finally {
+                if (btn) { btn.disabled = false; btn.innerHTML = oldLabel; }
             }
         }
 
         async function verifyOTP() {
             const otp = document.getElementById('partner-otp').value.trim();
+            if (!otp) return alert("Please enter the OTP");
 
             const res = await fetch('/api/verify-otp', {
                 method: 'POST',
@@ -787,7 +800,7 @@
                 body: JSON.stringify({ email: currentPartnerEmail, otp })
             });
 
-            const data = await res.json();
+            const data = await res.json().catch(() => ({}));
 
             if (data.success) {
                 document.getElementById('step-otp').classList.add('hidden');
@@ -825,11 +838,13 @@
                 })
             });
 
-            if (res.ok) {
+            const data = await res.json().catch(() => ({}));
+
+            if (res.ok && data.success !== false) {
                 document.getElementById('step-form').classList.add('hidden');
                 document.getElementById('step-success').classList.remove('hidden');
             } else {
-                alert("Submission failed. Please try again.");
+                alert(data.message || "Submission failed. Please try again.");
             }
         }
 

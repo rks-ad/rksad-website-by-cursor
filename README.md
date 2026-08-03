@@ -15,8 +15,8 @@ Same UI, same API paths, same Resend OTP/partner emails. The visit counter uses 
 | Language | TypeScript |
 | Counter DB | PostgreSQL via Prisma (`page_views`) |
 | Counter fallback | `data/counter.json` |
-| OTP store | In-memory Map (10 min TTL), optional Redis |
-| Email | Resend API |
+| OTP store | PostgreSQL (`partner_otps`), then Redis, then memory |
+| Email | Resend API (branded templates → applicant + `iam@rks.ad`) |
 | Deploy | Docker / docker-compose |
 
 ---
@@ -64,9 +64,11 @@ Copy `.env.example` → `.env`:
 | `PORT` | no | Default `3000` |
 | `SITE_URL` | no | Used in sitemap/robots (default `https://rks.ad`) |
 | `DATABASE_URL` | recommended | Postgres connection string |
-| `RESEND_API_KEY` | yes (for OTP/partner) | Resend API key |
-| `FROM_EMAIL` | no | Default `Notify@mails.rks.ad` |
-| `REDIS_URL` | no | Optional Redis for OTP |
+| `RESEND_API_KEY` | **yes** (OTP/partner) | Resend API key |
+| `FROM_EMAIL` | no | Default `Notify@mails.rks.ad` (must be on a Resend-verified domain) |
+| `FROM_NAME` | no | Default `RKS.Ad Notify` |
+| `PARTNER_NOTIFY_EMAIL` | no | Where forms are sent (default `iam@rks.ad`) |
+| `REDIS_URL` | no | Optional Redis OTP fallback |
 | `COUNTER_FILE_PATH` | no | Default `./data/counter.json` |
 
 ---
@@ -211,6 +213,7 @@ All frontend UI lives in **`views/index.html`**. Redeploy after edits (or restar
 
 ## Notes
 
-- OTP is in-memory by default (fine for a single container). For multi-replica, set `REDIS_URL`.
-- Partner notify email still goes to `iam@rks.ad`.
+- OTP is stored in **Postgres** (`partner_otps`) so it works across multiple containers. Redis/memory are fallbacks.
+- Partner notify email goes to `PARTNER_NOTIFY_EMAIL` (default `iam@rks.ad`).
 - Do not commit `.env` or real API keys.
+- If OTP send fails, check `/health` → `emailConfigured` and that `FROM_EMAIL` uses a domain verified in Resend.

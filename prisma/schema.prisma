@@ -7,9 +7,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-/// Single-row page view counter (replaces Cloudflare KV).
+/// Global page-view counter — single shared row for all devices.
 model page_views {
-  id         Int      @id @default(1)
-  count      BigInt   @default(0)
-  updated_at DateTime @updatedAt
+  id           Int      @id @default(1)
+  count        BigInt   @default(0)
+  day          String   @default("")
+  day_added    BigInt   @default(0)
+  daily_target Int      @default(20000)
+  updated_at   DateTime @updatedAt
+}
+
+/// Partner form OTPs — durable across container restarts / multiple instances.
+model partner_otps {
+  email      String   @id
+  otp        String
+  expires_at DateTime
+  created_at DateTime @default(now())
 }
