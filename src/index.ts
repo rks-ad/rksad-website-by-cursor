@@ -6,6 +6,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { sendOtp, verifyOtp, submitPartner } from "./routes/partner.js";
 import { getAndIncrementCounter } from "./counter.js";
+import { getEmailConfigStatus, logEmailConfigAtStartup } from "./env.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -26,6 +27,8 @@ const htmlContent = readFileSync(join(viewsDir, "index.html"), "utf-8");
 
 const PORT = Number(process.env.PORT || 3000);
 const SITE_URL = (process.env.SITE_URL || "https://rks.ad").replace(/\/$/, "");
+
+logEmailConfigAtStartup();
 
 const app = new Hono();
 
@@ -85,15 +88,16 @@ app.get("/api/counter", async (c) => {
 
 // --- Health (useful for Docker / Dokploy probes) ---
 app.get("/health", (c) => {
-  const key = process.env.RESEND_API_KEY?.trim() || "";
-  const emailConfigured =
-    Boolean(key) && !key.includes("xxxx") && key !== "re_xxxxxxxxxxxxxxxxxxxxxxxx";
+  const email = getEmailConfigStatus();
   return c.json({
     ok: true,
     hasDatabaseUrl: Boolean(process.env.DATABASE_URL),
-    emailConfigured,
-    fromEmail: process.env.FROM_EMAIL || "Notify@mails.rks.ad",
-    partnerNotifyEmail: process.env.PARTNER_NOTIFY_EMAIL || "iam@rks.ad",
+    emailConfigured: email.emailConfigured,
+    resendKeyPresent: email.resendKeyPresent,
+    resendKeyMasked: email.resendKeyMasked,
+    resendEnvNamesFound: email.resendEnvNamesFound,
+    fromEmail: email.fromEmail,
+    partnerNotifyEmail: email.partnerNotifyEmail,
   });
 });
 
