@@ -859,9 +859,12 @@
             const el = document.getElementById('live-counter');
             el.innerHTML = '•••';
             try {
-                let res = await fetch('/api/counter');
+                let res = await fetch('/api/counter', { cache: 'no-store' });
+                if (!res.ok) throw new Error('counter http ' + res.status);
                 let data = await res.json();
-                animateCounter(el, data.count);
+                const n = Number(data.count);
+                if (!Number.isFinite(n) || n < 0) throw new Error('bad count');
+                animateCounter(el, n);
             } catch(e) {
                 el.innerHTML = '•••';
             }

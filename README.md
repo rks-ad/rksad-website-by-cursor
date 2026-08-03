@@ -63,7 +63,8 @@ Copy `.env.example` → `.env`:
 |----------|----------|-------------|
 | `PORT` | no | Default `3000` |
 | `SITE_URL` | no | Used in sitemap/robots (default `https://rks.ad`) |
-| `DATABASE_URL` | recommended | Postgres connection string |
+| `DATABASE_URL` | **required** for global counter | Postgres connection string (shared across all devices) |
+| `COUNTER_SEED` | no | Bootstrap count when DB/file is empty (e.g. `12480`) |
 | `RESEND_API_KEY` | yes (for OTP/partner) | Resend API key |
 | `FROM_EMAIL` | no | Default `Notify@mails.rks.ad` |
 | `REDIS_URL` | no | Optional Redis for OTP |
@@ -167,26 +168,45 @@ If you already run Postgres/Prisma elsewhere on the VPS:
 
 ## Counter behaviour
 
-1. On every `GET /api/counter`, try Postgres: upsert row `id=1`, `count += 1`, return `{ count }`.
-2. If Postgres is down / unset → increment `data/counter.json` instead.
-3. Successful Postgres increments also sync the file so a later outage continues from a sensible number.
+The total visits number is **one global value for every device worldwide**. It is never stored in the browser.
+
+1. On every `GET /api/counter` the server:
+   - reads the latest count from **PostgreSQL** (`page_views` row `id=1`)
+   - adds a weighted random increment (2 / 3 / 4 digit, occasional big jump)
+   - saves the new higher value
+   - returns `{ count }` with `Cache-Control: no-store`
+2. Fallback order if Postgres is unavailable: **Redis** → **JSON file** (file needs a persistent volume or it resets on redeploy).
+3. Soft daily growth budget is also stored in Postgres so pacing survives restarts.
+4. Frontend only displays the API value (`fetch(..., { cache: 'no-store' })`) — no `localStorage`.
+
+**Dokploy / Coolify:** you must set `DATABASE_URL` to a durable Postgres service. Without it the counter uses a container-local file and will look like it “resets” after redeploys or on a fresh instance.
 
 Schema:
 
 ```prisma
 model page_views {
-  id         Int      @id @default(1)
-  count      BigInt   @default(0)
-  updated_at DateTime @updatedAt
+  id           Int      @id @default(1)
+  count        BigInt   @default(0)
+  day          String   @default("")
+  day_added    BigInt   @default(0)
+  daily_target Int      @default(20000)
+  updated_at   DateTime @updatedAt
 }
 ```
 
-To seed a starting count (e.g. migrate from Cloudflare KV):
+Seed / migrate an existing total:
+
+```bash
+# env bootstrap (applied when count is 0)
+COUNTER_SEED=12480
+```
 
 ```sql
-INSERT INTO page_views (id, count, updated_at)
-VALUES (1, 123456, NOW())
-ON CONFLICT (id) DO UPDATE SET count = EXCLUDED.count, updated_at = NOW();
+INSERT INTO page_views (id, count, day, day_added, daily_target, updated_at)
+VALUES (1, 12480, '', 0, 20000, NOW())
+ON CONFLICT (id) DO UPDATE
+SET count = GREATEST(page_views.count, EXCLUDED.count),
+    updated_at = NOW();
 ```
 
 ---
