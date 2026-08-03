@@ -7,9 +7,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-/// Single-row page view counter (replaces Cloudflare KV).
+/// Global page-view counter — single shared row for all devices worldwide.
 model page_views {
-  id         Int      @id @default(1)
-  count      BigInt   @default(0)
-  updated_at DateTime @updatedAt
+  id           Int      @id @default(1)
+  count        BigInt   @default(0)
+  /// UTC day key (YYYY-MM-DD) for soft daily growth pacing
+  day          String   @default("")
+  day_added    BigInt   @default(0)
+  daily_target Int      @default(20000)
+  updated_at   DateTime @updatedAt
 }

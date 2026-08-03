@@ -5,7 +5,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { sendOtp, verifyOtp, submitPartner } from "./routes/partner.js";
-import { getAndIncrementCounter } from "./counter.js";
+import { getAndIncrementCounter, getCounterStorageHint, getLastKnownCount } from "./counter.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -75,16 +75,38 @@ app.post("/api/submit-partner", submitPartner);
 app.get("/api/counter", async (c) => {
   try {
     const count = await getAndIncrementCounter();
-    return c.json({ count });
+    return c.json(
+      { count },
+      200,
+      {
+        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+        Pragma: "no-cache",
+        Expires: "0",
+      }
+    );
   } catch (err) {
     console.error("[counter] unexpected error:", err);
-    // Last-resort: never break the page
-    return c.json({ count: 0 });
+    const fallback = getLastKnownCount();
+    // Never advertise a reset to zero if we already know a higher global value
+    return c.json(
+      { count: fallback, error: "counter_unavailable" },
+      fallback > 0 ? 200 : 503,
+      {
+        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+        Pragma: "no-cache",
+      }
+    );
   }
 });
 
 // --- Health (useful for Docker / Dokploy probes) ---
-app.get("/health", (c) => c.json({ ok: true }));
+app.get("/health", (c) => {
+  return c.json({
+    ok: true,
+    counterStorage: getCounterStorageHint(),
+    hasDatabaseUrl: Boolean(process.env.DATABASE_URL),
+  });
+});
 
 // --- SPA / home ---
 app.get("*", (c) => {
