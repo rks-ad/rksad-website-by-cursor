@@ -5,7 +5,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { sendOtp, verifyOtp, submitPartner } from "./routes/partner.js";
-import { getAndIncrementCounter } from "./counter.js";
+import { getAndIncrementCounter, getLiveCounter } from "./counter.js";
 import { getEmailConfigStatus, logEmailConfigAtStartup } from "./env.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -76,6 +76,7 @@ app.post("/api/verify-otp", verifyOtp);
 app.post("/api/submit-partner", submitPartner);
 
 app.get("/api/counter", async (c) => {
+  c.header("Cache-Control", "no-store, no-cache, must-revalidate");
   try {
     const count = await getAndIncrementCounter();
     return c.json({ count });
@@ -83,6 +84,18 @@ app.get("/api/counter", async (c) => {
     console.error("[counter] unexpected error:", err);
     // Last-resort: never break the page
     return c.json({ count: 0 });
+  }
+});
+
+/** Live poll — same increment logic, paced globally so open tabs climb without refresh. */
+app.get("/api/counter/live", async (c) => {
+  c.header("Cache-Control", "no-store, no-cache, must-revalidate");
+  try {
+    const result = await getLiveCounter();
+    return c.json({ count: result.count, ticked: result.ticked });
+  } catch (err) {
+    console.error("[counter/live] unexpected error:", err);
+    return c.json({ count: 0, ticked: false });
   }
 });
 
