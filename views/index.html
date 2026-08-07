@@ -24,8 +24,8 @@
     <meta http-equiv="content-language" content="en-IN">
 
     <!-- Mobile / theme -->
-    <meta name="theme-color" content="#0a0a0a">
-    <meta name="msapplication-TileColor" content="#0a0a0a">
+    <meta name="theme-color" content="#071018">
+    <meta name="msapplication-TileColor" content="#071018">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="format-detection" content="telephone=yes">
@@ -97,7 +97,7 @@
           ],
           "sameAs": [
             "https://ecourtsindia.com/advocate/ravi-kumar-sharma",
-            "https://cal.id/lawup"
+            "https://cal.id/lawup/rks"
           ]
         },
         {
@@ -158,7 +158,7 @@
           "founder": { "@id": "https://rks.ad/#person" },
           "sameAs": [
             "https://ecourtsindia.com/advocate/ravi-kumar-sharma",
-            "https://cal.id/lawup"
+            "https://cal.id/lawup/rks"
           ]
         },
         {
@@ -198,14 +198,83 @@
     }
     </script>
 
-    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Prevent FOUC: hide until critical layout + Tailwind are ready -->
+    <script>document.documentElement.classList.add('js');</script>
+    <style>
+        :root {
+            --bg-deep: #071018;
+            --bg-mid: #0c1824;
+            --accent-cyan: #00f5ff;
+            --accent-emerald: #10b981;
+            --accent-brand: #1e5c8f;
+        }
+        html.js body { opacity: 0; }
+        html.js.ready body { opacity: 1; transition: opacity 0.4s ease; }
+        html, body {
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg-deep);
+            color: #fff;
+            margin: 0;
+            min-height: 100vh;
+        }
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow-x: hidden;
+            background:
+                radial-gradient(ellipse 90% 55% at 15% -5%, rgba(0, 245, 255, 0.14), transparent 55%),
+                radial-gradient(ellipse 70% 45% at 95% 5%, rgba(16, 185, 129, 0.12), transparent 50%),
+                radial-gradient(ellipse 55% 40% at 50% 110%, rgba(30, 92, 143, 0.22), transparent 55%),
+                linear-gradient(165deg, #060910 0%, #0a1520 38%, #0c1a28 72%, #071018 100%);
+        }
+        /* Critical first-paint layout (before Tailwind CDN) */
+        main.page-shell {
+            text-align: center;
+            width: 100%;
+            max-width: 56rem;
+            padding: 1.5rem 1.5rem;
+            position: relative;
+            z-index: 10;
+        }
+        #logo {
+            font-size: 4.5rem;
+            font-weight: 700;
+            letter-spacing: -0.05em;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 0 0 0.5rem;
+            line-height: 1;
+        }
+        @media (min-width: 768px) {
+            #logo { font-size: 9rem; }
+        }
+        .text-cyan-400 { color: #22d3ee; }
+        .text-white { color: #fff; }
+        .text-gray-400 { color: #9ca3af; }
+        .text-red-400 { color: #f87171; }
+        .text-yellow-400 { color: #facc15; }
+        .text-emerald-400 { color: #34d399; }
+        .text-blue-400 { color: #60a5fa; }
+        .text-pink-400 { color: #f472b6; }
+        .text-purple-400 { color: #c084fc; }
+        .text-amber-400 { color: #fbbf24; }
+    </style>
+
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="dns-prefetch" href="https://cal.id">
+    <script src="https://cdn.tailwindcss.com" onload="document.documentElement.classList.add('ready')"></script>
+    <script>setTimeout(function(){ document.documentElement.classList.add('ready'); }, 900);</script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <style>
-        body { font-family: system-ui, sans-serif; background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%); color: white; margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; }
         .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
         .logo-letter { transition: all 0.4s ease; }
         .logo-letter:hover { color: #00f5ff; text-shadow: 0 0 25px #00f5ff; transform: scale(1.1); }
-        .practice-pill { transition: all 0.3s ease; }
+        .practice-pill { transition: all 0.3s ease; cursor: default; }
         .practice-pill:hover { transform: translateY(-2px); }
         .toast { animation: slideIn 0.4s ease forwards; touch-action: none; cursor: grab; user-select: none; }
         .toast:active { cursor: grabbing; }
@@ -214,6 +283,63 @@
         @keyframes slideOut { to { opacity:0; transform:translateX(var(--end-x)); } }
         .modal { animation: fadeInScale 0.2s ease forwards; }
         @keyframes fadeInScale { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
+
+        /* ===== Animated atmosphere ===== */
+        .bg-fx {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .bg-fx::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 64px 64px;
+            mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 20%, transparent 75%);
+            opacity: 0.45;
+        }
+        .bg-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(72px);
+            opacity: 0.45;
+            will-change: transform;
+        }
+        .bg-orb-a {
+            width: 42vw; height: 42vw; max-width: 520px; max-height: 520px;
+            left: -8%; top: -12%;
+            background: radial-gradient(circle, rgba(0,245,255,0.55), transparent 70%);
+            animation: orbDriftA 16s ease-in-out infinite alternate;
+        }
+        .bg-orb-b {
+            width: 38vw; height: 38vw; max-width: 460px; max-height: 460px;
+            right: -10%; top: 8%;
+            background: radial-gradient(circle, rgba(16,185,129,0.5), transparent 70%);
+            animation: orbDriftB 19s ease-in-out infinite alternate;
+        }
+        .bg-orb-c {
+            width: 50vw; height: 36vw; max-width: 580px; max-height: 420px;
+            left: 25%; bottom: -18%;
+            background: radial-gradient(circle, rgba(30,92,143,0.55), transparent 70%);
+            animation: orbDriftC 22s ease-in-out infinite alternate;
+        }
+        @keyframes orbDriftA {
+            from { transform: translate(0, 0) scale(1); }
+            to { transform: translate(8%, 12%) scale(1.12); }
+        }
+        @keyframes orbDriftB {
+            from { transform: translate(0, 0) scale(1); }
+            to { transform: translate(-10%, 8%) scale(1.08); }
+        }
+        @keyframes orbDriftC {
+            from { transform: translate(0, 0) scale(1); }
+            to { transform: translate(6%, -10%) scale(1.15); }
+        }
 
         /* ===== Photo reveal box ===== */
         .photo-box {
@@ -258,6 +384,70 @@
             opacity: 0;
         }
 
+        /* ===== Practice area case hover cards ===== */
+        .practice-item {
+            position: relative;
+        }
+        .practice-cases {
+            position: absolute;
+            left: 50%;
+            bottom: calc(100% + 12px);
+            transform: translateX(-50%) translateY(6px);
+            width: max-content;
+            max-width: min(280px, 82vw);
+            padding: 12px 14px;
+            border-radius: 14px;
+            background: rgba(9, 14, 22, 0.94);
+            border: 1px solid rgba(255,255,255,0.14);
+            box-shadow: 0 18px 40px rgba(0,0,0,0.45);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.28s ease, transform 0.28s ease, visibility 0.28s;
+            z-index: 40;
+            text-align: left;
+        }
+        .practice-cases::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 100%;
+            transform: translateX(-50%);
+            border: 7px solid transparent;
+            border-top-color: rgba(9, 14, 22, 0.94);
+        }
+        .practice-item:hover .practice-cases,
+        .practice-item:focus-within .practice-cases {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+        .practice-cases strong {
+            display: block;
+            font-size: 10px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: rgba(165, 243, 252, 0.9);
+            margin-bottom: 8px;
+        }
+        .practice-cases ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .practice-cases li {
+            font-size: 11px;
+            line-height: 1.3;
+            color: rgba(228, 228, 231, 0.95);
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 999px;
+            padding: 4px 9px;
+        }
+
         /* Floating Pay Button */
         #pay-fab {
             box-shadow: 0 0 30px rgba(16, 185, 129, 0.55);
@@ -267,10 +457,23 @@
             0%, 100% { box-shadow: 0 0 25px rgba(16, 185, 129, 0.5); }
             50% { box-shadow: 0 0 40px rgba(16, 185, 129, 0.8); }
         }
+
+        /* Keep Cal floating button above toasts but below modals */
+        .calid-floating-button,
+        [data-cal-namespace],
+        iframe[src*="cal.id"] {
+            z-index: 55 !important;
+        }
     </style>
 </head>
 <body>
-    <main class="text-center w-full max-w-4xl px-6 relative z-10">
+    <div class="bg-fx" aria-hidden="true">
+        <span class="bg-orb bg-orb-a"></span>
+        <span class="bg-orb bg-orb-b"></span>
+        <span class="bg-orb bg-orb-c"></span>
+    </div>
+
+    <main class="page-shell text-center w-full max-w-4xl px-6 relative z-10">
 
         <!-- Logo -->
         <div class="flex justify-center mb-6">
@@ -317,12 +520,90 @@
         <div class="mb-8">
             <div class="text-gray-400 text-xs tracking-[3px] mb-3">PRACTICE AREAS</div>
             <div class="flex flex-wrap justify-center gap-2">
-                <div class="group relative"><div class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2"><i class="fa-solid fa-balance-scale text-emerald-400" aria-hidden="true"></i><span>Civil</span></div></div>
-                <div class="group relative"><div class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2"><i class="fa-solid fa-gavel text-red-400" aria-hidden="true"></i><span>Criminal</span></div></div>
-                <div class="group relative"><div class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2"><i class="fa-solid fa-building text-blue-400" aria-hidden="true"></i><span>Corporate</span></div></div>
-                <div class="group relative"><div class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2"><i class="fa-solid fa-users text-pink-400" aria-hidden="true"></i><span>Family</span></div></div>
-                <div class="group relative"><div class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2"><i class="fa-solid fa-landmark text-purple-400" aria-hidden="true"></i><span>Tribunals</span></div></div>
-                <div class="group relative"><div class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2"><i class="fa-solid fa-folder-open text-amber-400" aria-hidden="true"></i><span>Other Disputes</span></div></div>
+                <div class="practice-item group relative" tabindex="0">
+                    <div class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2"><i class="fa-solid fa-balance-scale text-emerald-400" aria-hidden="true"></i><span>Civil</span></div>
+                    <div class="practice-cases" role="tooltip">
+                        <strong>Civil matters</strong>
+                        <ul>
+                            <li>Property Dispute</li>
+                            <li>Contract Breach</li>
+                            <li>Injunction Suit</li>
+                            <li>Recovery Suit</li>
+                            <li>Partition Suit</li>
+                            <li>Specific Performance</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="practice-item group relative" tabindex="0">
+                    <div class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2"><i class="fa-solid fa-gavel text-red-400" aria-hidden="true"></i><span>Criminal</span></div>
+                    <div class="practice-cases" role="tooltip">
+                        <strong>Criminal matters</strong>
+                        <ul>
+                            <li>Bail Application</li>
+                            <li>Anticipatory Bail</li>
+                            <li>Quashing Petition</li>
+                            <li>Trial Defence</li>
+                            <li>Cheque Bounce (138 NI)</li>
+                            <li>IPC Defence</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="practice-item group relative" tabindex="0">
+                    <div class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2"><i class="fa-solid fa-building text-blue-400" aria-hidden="true"></i><span>Corporate</span></div>
+                    <div class="practice-cases" role="tooltip">
+                        <strong>Corporate matters</strong>
+                        <ul>
+                            <li>Company Dispute</li>
+                            <li>Shareholder Conflict</li>
+                            <li>Contract / MoU Draft</li>
+                            <li>Compliance Advisory</li>
+                            <li>Insolvency (IBC)</li>
+                            <li>Commercial Suit</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="practice-item group relative" tabindex="0">
+                    <div class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2"><i class="fa-solid fa-users text-pink-400" aria-hidden="true"></i><span>Family</span></div>
+                    <div class="practice-cases" role="tooltip">
+                        <strong>Family matters</strong>
+                        <ul>
+                            <li>Divorce Petition</li>
+                            <li>Mutual Consent Divorce</li>
+                            <li>Maintenance</li>
+                            <li>Child Custody</li>
+                            <li>Domestic Violence</li>
+                            <li>Restitution of Conjugal Rights</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="practice-item group relative" tabindex="0">
+                    <div class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2"><i class="fa-solid fa-landmark text-purple-400" aria-hidden="true"></i><span>Tribunals</span></div>
+                    <div class="practice-cases" role="tooltip">
+                        <strong>Tribunal matters</strong>
+                        <ul>
+                            <li>Consumer Forum</li>
+                            <li>NCLT Matter</li>
+                            <li>Income Tax Appeal</li>
+                            <li>GST Appeal</li>
+                            <li>RERA Dispute</li>
+                            <li>Service / CAT Matter</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="practice-item group relative" tabindex="0">
+                    <div class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2"><i class="fa-solid fa-folder-open text-amber-400" aria-hidden="true"></i><span>Other Disputes</span></div>
+                    <div class="practice-cases" role="tooltip">
+                        <strong>Other disputes</strong>
+                        <ul>
+                            <li>Arbitration</li>
+                            <li>Mediation</li>
+                            <li>Legal Notice</li>
+                            <li>Writ Petition</li>
+                            <li>Settlement Drafting</li>
+                            <li>General Litigation</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -331,7 +612,7 @@
             <button onclick="showPartnerModal()" class="flex items-center justify-center gap-3 px-7 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-3xl text-base font-medium">
                 <i class="fa-solid fa-handshake" aria-hidden="true"></i> <span>Partner with RKS</span>
             </button>
-            <a href="https://cal.id/lawup" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-3 px-7 py-4 bg-white/10 hover:bg-white/20 border border-white/40 rounded-3xl text-base font-medium">
+            <a href="https://cal.id/lawup/rks" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-3 px-7 py-4 bg-white/10 hover:bg-white/20 border border-white/40 rounded-3xl text-base font-medium">
                 <i class="fa-solid fa-calendar-days text-xl" aria-hidden="true"></i> <span>Book Consultation</span>
             </a>
             <a href="https://ecourtsindia.com/advocate/ravi-kumar-sharma" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-3 px-7 py-4 bg-white/10 hover:bg-white/20 border border-white/40 rounded-3xl text-base font-medium">
@@ -886,7 +1167,58 @@
             loadCounter();
             randomLiveVisitors();
             startToastNotifications();
+            document.documentElement.classList.add('ready');
         };
+    </script>
+
+    <!-- Cal.id floating Consult NOW widget (vanilla equivalent of @calid/react-embed) -->
+    <script>
+      (function (C, A, L) {
+        let p = function (a, ar) { a.q.push(ar); };
+        let d = C.document;
+        C.Cal = C.Cal || function () {
+          let cal = C.Cal;
+          let ar = arguments;
+          if (!cal.loaded) {
+            cal.ns = {};
+            cal.q = cal.q || [];
+            d.head.appendChild(d.createElement("script")).src = A;
+            cal.loaded = true;
+          }
+          if (ar[0] === L) {
+            const api = function () { p(api, arguments); };
+            const namespace = ar[1];
+            api.q = api.q || [];
+            if (typeof namespace === "string") {
+              cal.ns[namespace] = cal.ns[namespace] || api;
+              p(cal.ns[namespace], ar);
+              p(cal, ["initNamespace", namespace]);
+            } else p(cal, ar);
+            return;
+          }
+          p(cal, ar);
+        };
+      })(window, "https://cal.id/embed-link/embed.js", "init");
+
+      Cal("init", "default", { origin: "https://cal.id" });
+      Cal.ns["default"]("floatingButton", {
+        calLink: "lawup/rks",
+        calOrigin: "https://cal.id",
+        config: { layout: "month_view" },
+        buttonText: "Consult NOW",
+        hideButtonIcon: false,
+        buttonPosition: "bottom-left",
+        buttonColor: "#000000",
+        buttonTextColor: "#ffffff"
+      });
+      Cal.ns["default"]("ui", {
+        cssVarsPerTheme: {
+          light: { "cal-brand": "#1e5c8f" },
+          dark: { "cal-brand": "#fafafa" }
+        },
+        hideEventTypeDetails: false,
+        layout: "week_view"
+      });
     </script>
 </body>
 </html>
