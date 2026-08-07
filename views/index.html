@@ -549,12 +549,12 @@
             50% { box-shadow: 0 0 40px rgba(16, 185, 129, 0.8); }
         }
 
-        /* Left toasts sit above Cal button; Cal sits above toasts in stacking order */
+        /* Left toasts at bottom-left (Cal sits mid-left, so no overlap) */
         #toast-left {
-            bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px));
+            bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
             left: max(1rem, env(safe-area-inset-left, 0px));
             z-index: 60;
-            max-width: min(260px, calc(100vw - 5.5rem));
+            max-width: min(260px, calc(100vw - 2rem));
         }
         #toast-right {
             bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
@@ -563,26 +563,19 @@
         }
         @media (min-width: 768px) {
             #toast-left {
-                bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px));
                 left: max(1.5rem, env(safe-area-inset-left, 0px));
             }
         }
 
-        /* Cal floating button above left toasts, below modals; clear iPhone home indicator */
+        /* Cal floating button: left-middle, above toasts, below modals */
+        cal-floating-button,
         .calid-floating-button,
         .cal-floating-button,
-        [data-cal-namespace],
         [class*="calid-floating"],
-        [class*="CalFloating"],
-        button[aria-label*="Consult"],
-        iframe[src*="cal.id"] {
+        [class*="CalFloating"] {
             z-index: 80 !important;
         }
-        /* Nudge Cal button up from home indicator / left toast zone */
-        body .calid-floating-button,
-        body [class*="calid-floating"] {
-            bottom: max(1.25rem, env(safe-area-inset-bottom, 0px)) !important;
-            left: max(1rem, env(safe-area-inset-left, 0px)) !important;
+        iframe[src*="cal.id"] {
             z-index: 80 !important;
         }
     </style>
@@ -936,20 +929,55 @@
             });
         })();
 
-        // Ensure Cal floating button stays above left toasts once injected
-        (function elevateCalButton() {
-            function bump() {
-                const nodes = document.querySelectorAll(
-                    '.calid-floating-button, .cal-floating-button, [class*="calid-floating"], [class*="CalFloating"], button[aria-label*="Consult"], a[href*="cal.id"][class*="floating"]'
-                );
-                nodes.forEach(function (el) {
-                    el.style.setProperty('z-index', '80', 'important');
-                });
+        // Pin Cal floating button to left-middle (API only supports bottom corners)
+        (function positionCalLeftMiddle() {
+            var STYLE_ID = "rks-cal-left-middle";
+            var STYLE_CSS =
+                "button{" +
+                "position:fixed!important;" +
+                "top:50%!important;" +
+                "bottom:auto!important;" +
+                "right:auto!important;" +
+                "left:max(0.75rem,env(safe-area-inset-left,0px))!important;" +
+                "transform:translateY(-50%)!important;" +
+                "z-index:80!important;" +
+                "max-width:min(42vw,11.5rem)!important;" +
+                "}" +
+                "@media (min-width:768px){" +
+                "button{left:max(1.25rem,env(safe-area-inset-left,0px))!important;max-width:none!important;}" +
+                "}";
+
+            function apply(host) {
+                if (!host || host.nodeType !== 1) return;
+                host.style.setProperty("z-index", "80", "important");
+                var root = host.shadowRoot;
+                if (!root) return;
+                if (!root.getElementById(STYLE_ID)) {
+                    var style = document.createElement("style");
+                    style.id = STYLE_ID;
+                    style.textContent = STYLE_CSS;
+                    root.appendChild(style);
+                }
+                var btn = root.querySelector("button");
+                if (btn) {
+                    btn.style.setProperty("position", "fixed", "important");
+                    btn.style.setProperty("top", "50%", "important");
+                    btn.style.setProperty("bottom", "auto", "important");
+                    btn.style.setProperty("right", "auto", "important");
+                    btn.style.setProperty("left", "max(0.75rem, env(safe-area-inset-left, 0px))", "important");
+                    btn.style.setProperty("transform", "translateY(-50%)", "important");
+                    btn.style.setProperty("z-index", "80", "important");
+                }
             }
-            bump();
-            const obs = new MutationObserver(bump);
+
+            function scan() {
+                document.querySelectorAll("cal-floating-button, [data-cal-namespace][data-button-text], [data-cal-link][data-button-position]").forEach(apply);
+            }
+
+            scan();
+            var obs = new MutationObserver(function () { scan(); });
             obs.observe(document.body, { childList: true, subtree: true });
-            setTimeout(function () { obs.disconnect(); }, 15000);
+            setTimeout(function () { obs.disconnect(); }, 20000);
         })();
 
         // ==================== PAY MODAL ====================
@@ -1465,6 +1493,7 @@
         config: { layout: "month_view" },
         buttonText: "Consult NOW",
         hideButtonIcon: false,
+        // API only allows bottom-left/right; CSS/JS move it to left-middle
         buttonPosition: "bottom-left",
         buttonColor: "#000000",
         buttonTextColor: "#ffffff"
