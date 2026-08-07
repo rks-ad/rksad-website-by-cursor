@@ -10,11 +10,18 @@ const COUNTER_FILE =
 const DAILY_TARGET_MIN = 12_000;
 const DAILY_TARGET_MAX = 38_000;
 
+/** Minimum gap between global live ticks (keeps growth paced across open tabs). */
+const LIVE_TICK_MIN_MS = 5_500;
+const LIVE_TICK_MAX_MS = 11_000;
+
 type CounterMeta = {
   count: number;
   day: string; // YYYY-MM-DD (UTC)
   dayAdded: number;
   dailyTarget: number;
+  /** Epoch ms — next time a live tick may apply the traffic increment. */
+  nextLiveTickAt?: number;
+  lastLiveTick?: number;
   updated_at?: string;
 };
 
@@ -109,6 +116,7 @@ function defaultMeta(count = 0): CounterMeta {
     day: todayUtc(),
     dayAdded: 0,
     dailyTarget: randInt(DAILY_TARGET_MIN, DAILY_TARGET_MAX),
+    nextLiveTickAt: Date.now() + randInt(LIVE_TICK_MIN_MS, LIVE_TICK_MAX_MS),
   };
 }
 
@@ -133,6 +141,14 @@ function readMeta(): CounterMeta {
         typeof data.dailyTarget === "number" && Number.isFinite(data.dailyTarget)
           ? Math.max(DAILY_TARGET_MIN, Math.floor(data.dailyTarget))
           : randInt(DAILY_TARGET_MIN, DAILY_TARGET_MAX),
+      nextLiveTickAt:
+        typeof data.nextLiveTickAt === "number" && Number.isFinite(data.nextLiveTickAt)
+          ? data.nextLiveTickAt
+          : undefined,
+      lastLiveTick:
+        typeof data.lastLiveTick === "number" && Number.isFinite(data.lastLiveTick)
+          ? data.lastLiveTick
+          : undefined,
       updated_at: data.updated_at,
     };
 
@@ -232,4 +248,71 @@ export async function getAndIncrementCounter(): Promise<number> {
   const next = applyDeltaToMeta(meta, delta);
   writeMeta(next);
   return next.count;
+}
+
+/** Read the current total without incrementing (for live UI sync). */
+export async function getCurrentCounter(): Promise<number> {
+  const meta = readMeta();
+  const client = getPrisma();
+
+  if (client && prismaAvailable !== false) {
+    try {
+      await ensurePageViewsRow(client);
+      const current = await client.page_views.findUnique({ where: { id: 1 } });
+      const dbCount = current ? Number(current.count) : 0;
+      prismaAvailable = true;
+      return Math.max(dbCount, meta.count);
+    } catch (err) {
+      console.warn(
+        "[counter] Postgres peek failed, using file:",
+        err instanceof Error ? err.message : err
+      );
+      prismaAvailable = false;
+      setTimeout(() => {
+        prismaAvailable = null;
+      }, 60_000);
+    }
+  }
+
+  return meta.count;
+}
+
+let liveTickLock: Promise<{ count: number; ticked: boolean }> | null = null;
+
+/**
+ * Live poll helper: apply the same traffic increment at most once per paced interval,
+ * so open tabs see the counter climb without a refresh — without exploding growth
+ * when many clients poll at once.
+ */
+export async function getLiveCounter(): Promise<{ count: number; ticked: boolean }> {
+  if (liveTickLock) return liveTickLock;
+
+  liveTickLock = (async () => {
+    const meta = readMeta();
+    const now = Date.now();
+    const nextAt = typeof meta.nextLiveTickAt === "number" ? meta.nextLiveTickAt : 0;
+
+    if (now < nextAt) {
+      const count = await getCurrentCounter();
+      return { count, ticked: false };
+    }
+
+    const count = await getAndIncrementCounter();
+    try {
+      const latest = readMeta();
+      latest.count = Math.max(latest.count, count);
+      latest.lastLiveTick = now;
+      latest.nextLiveTickAt = now + randInt(LIVE_TICK_MIN_MS, LIVE_TICK_MAX_MS);
+      writeMeta(latest);
+    } catch {
+      /* ignore */
+    }
+    return { count, ticked: true };
+  })();
+
+  try {
+    return await liveTickLock;
+  } finally {
+    liveTickLock = null;
+  }
 }

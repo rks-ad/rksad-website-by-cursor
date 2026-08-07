@@ -1129,21 +1129,46 @@
             }
         }
 
-        function animateCounter(el, target) {
+        let displayedCount = 0;
+        let counterAnimToken = 0;
+        let liveCounterTimer = null;
+
+        function animateCounterTo(el, target, opts) {
+            opts = opts || {};
             const end = Math.max(0, Math.floor(Number(target) || 0));
-            const start = Math.max(0, Math.floor(end * 0.94));
-            const duration = 1100;
+            let start;
+            if (opts.fromDisplayed && displayedCount > 0) {
+                start = displayedCount;
+            } else {
+                start = Math.max(0, Math.floor(end * (opts.fromRatio != null ? opts.fromRatio : 0.94)));
+            }
+            if (end < start) start = end;
+            if (end === start) {
+                displayedCount = end;
+                el.textContent = end.toLocaleString('en-IN');
+                return;
+            }
+
+            const delta = end - start;
+            const duration = opts.duration != null
+                ? opts.duration
+                : (opts.fromDisplayed
+                    ? Math.min(1600, Math.max(450, 280 + delta * 0.12))
+                    : 1100);
+            const token = ++counterAnimToken;
             const startTs = performance.now();
 
             function frame(now) {
+                if (token !== counterAnimToken) return;
                 const t = Math.min(1, (now - startTs) / duration);
                 // easeOutCubic
                 const eased = 1 - Math.pow(1 - t, 3);
-                const value = Math.round(start + (end - start) * eased);
+                const value = Math.round(start + delta * eased);
                 el.textContent = value.toLocaleString('en-IN');
                 if (t < 1) {
                     requestAnimationFrame(frame);
                 } else {
+                    displayedCount = end;
                     el.textContent = end.toLocaleString('en-IN');
                 }
             }
@@ -1151,16 +1176,48 @@
             requestAnimationFrame(frame);
         }
 
+        function animateCounter(el, target) {
+            animateCounterTo(el, target, { fromRatio: 0.94 });
+        }
+
         async function loadCounter() {
             const el = document.getElementById('live-counter');
             el.innerHTML = '•••';
             try {
-                let res = await fetch('/api/counter');
-                let data = await res.json();
-                animateCounter(el, data.count);
+                const res = await fetch('/api/counter', { cache: 'no-store' });
+                const data = await res.json();
+                animateCounterTo(el, data.count, { fromRatio: 0.94 });
+                startLiveCounterUpdates();
             } catch(e) {
                 el.innerHTML = '•••';
+                startLiveCounterUpdates();
             }
+        }
+
+        function startLiveCounterUpdates() {
+            if (liveCounterTimer) clearTimeout(liveCounterTimer);
+            const el = document.getElementById('live-counter');
+
+            async function poll() {
+                try {
+                    const res = await fetch('/api/counter/live', { cache: 'no-store' });
+                    const data = await res.json();
+                    const next = Math.max(0, Math.floor(Number(data.count) || 0));
+                    if (next > displayedCount) {
+                        animateCounterTo(el, next, { fromDisplayed: true });
+                    } else if (displayedCount === 0 && next > 0) {
+                        animateCounterTo(el, next, { fromRatio: 0.98, duration: 700 });
+                    }
+                } catch (e) {
+                    /* keep showing last known value */
+                }
+                // Irregular cadence (~5–10s) so growth feels organic
+                const delay = 5000 + Math.floor(Math.random() * 5000);
+                liveCounterTimer = setTimeout(poll, delay);
+            }
+
+            // First live tick shortly after initial load animation
+            liveCounterTimer = setTimeout(poll, 4200 + Math.floor(Math.random() * 1800));
         }
 
         window.onload = function() {
