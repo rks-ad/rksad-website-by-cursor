@@ -276,7 +276,7 @@
         .logo-letter:hover { color: #00f5ff; text-shadow: 0 0 25px #00f5ff; transform: scale(1.1); }
         .practice-pill { transition: all 0.3s ease; cursor: default; }
         .practice-pill:hover { transform: translateY(-2px); }
-        .toast { animation: slideIn 0.4s ease forwards; touch-action: none; cursor: grab; user-select: none; }
+        .toast { animation: slideIn 0.4s ease forwards; touch-action: none; cursor: grab; user-select: none; pointer-events: auto; }
         .toast:active { cursor: grabbing; }
         @keyframes slideIn { from { opacity:0; transform:translateX(var(--start-x)); } to { opacity:1; transform:translateX(0); } }
         .toast-exit { animation: slideOut 0.35s ease forwards; }
@@ -384,9 +384,21 @@
             opacity: 0;
         }
 
-        /* ===== Practice area case hover cards ===== */
+        /* ===== Practice area case hover / tap cards ===== */
+        .practice-areas {
+            position: relative;
+        }
         .practice-item {
             position: relative;
+        }
+        .practice-pill {
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            color: inherit;
+            font: inherit;
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
         }
         .practice-cases {
             position: absolute;
@@ -416,8 +428,15 @@
             border: 7px solid transparent;
             border-top-color: rgba(9, 14, 22, 0.94);
         }
-        .practice-item:hover .practice-cases,
-        .practice-item:focus-within .practice-cases {
+        @media (hover: hover) and (pointer: fine) {
+            .practice-item:hover .practice-cases,
+            .practice-item:focus-within .practice-cases {
+                opacity: 1;
+                visibility: visible;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+        .practice-item.is-open .practice-cases {
             opacity: 1;
             visibility: visible;
             transform: translateX(-50%) translateY(0);
@@ -448,21 +467,123 @@
             padding: 4px 9px;
         }
 
+        /* iPhone / small screens: full-width panel under pills (never clipped) */
+        .practice-mobile-panel {
+            display: none;
+        }
+        @media (max-width: 767px) {
+            .practice-cases {
+                display: none !important;
+            }
+            .practice-mobile-panel {
+                display: block;
+                margin-top: 12px;
+                min-height: 0;
+            }
+            .practice-mobile-panel .practice-cases-inner {
+                padding: 14px 14px;
+                border-radius: 16px;
+                background: rgba(9, 14, 22, 0.94);
+                border: 1px solid rgba(255,255,255,0.14);
+                box-shadow: 0 14px 32px rgba(0,0,0,0.4);
+                text-align: left;
+                opacity: 0;
+                transform: translateY(8px);
+                max-height: 0;
+                overflow: hidden;
+                pointer-events: none;
+                transition: opacity 0.28s ease, transform 0.28s ease, max-height 0.35s ease, padding 0.28s ease, margin 0.28s ease, border-width 0.28s ease;
+                padding-top: 0;
+                padding-bottom: 0;
+                border-width: 0;
+                margin: 0;
+            }
+            .practice-mobile-panel.is-visible .practice-cases-inner {
+                opacity: 1;
+                transform: translateY(0);
+                max-height: 280px;
+                pointer-events: auto;
+                padding: 14px;
+                border-width: 1px;
+            }
+            .practice-mobile-panel .practice-cases-inner strong {
+                display: block;
+                font-size: 10px;
+                letter-spacing: 1.5px;
+                text-transform: uppercase;
+                color: rgba(165, 243, 252, 0.9);
+                margin-bottom: 8px;
+            }
+            .practice-mobile-panel .practice-cases-inner ul {
+                list-style: none;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+            .practice-mobile-panel .practice-cases-inner li {
+                font-size: 12px;
+                line-height: 1.35;
+                color: rgba(228, 228, 231, 0.95);
+                background: rgba(255,255,255,0.06);
+                border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 999px;
+                padding: 5px 10px;
+            }
+            .practice-item.is-open .practice-pill {
+                background: rgba(255,255,255,0.22);
+                border-color: rgba(255,255,255,0.55);
+            }
+        }
+
         /* Floating Pay Button */
         #pay-fab {
             box-shadow: 0 0 30px rgba(16, 185, 129, 0.55);
             animation: pulse-glow 2.5s ease-in-out infinite;
+            bottom: calc(10rem + env(safe-area-inset-bottom, 0px));
+            right: max(1.5rem, env(safe-area-inset-right, 0px));
         }
         @keyframes pulse-glow {
             0%, 100% { box-shadow: 0 0 25px rgba(16, 185, 129, 0.5); }
             50% { box-shadow: 0 0 40px rgba(16, 185, 129, 0.8); }
         }
 
-        /* Keep Cal floating button above toasts but below modals */
+        /* Left toasts sit above Cal button; Cal sits above toasts in stacking order */
+        #toast-left {
+            bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px));
+            left: max(1rem, env(safe-area-inset-left, 0px));
+            z-index: 60;
+            max-width: min(260px, calc(100vw - 5.5rem));
+        }
+        #toast-right {
+            bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
+            right: max(1rem, env(safe-area-inset-right, 0px));
+            z-index: 60;
+        }
+        @media (min-width: 768px) {
+            #toast-left {
+                bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px));
+                left: max(1.5rem, env(safe-area-inset-left, 0px));
+            }
+        }
+
+        /* Cal floating button above left toasts, below modals; clear iPhone home indicator */
         .calid-floating-button,
+        .cal-floating-button,
         [data-cal-namespace],
+        [class*="calid-floating"],
+        [class*="CalFloating"],
+        button[aria-label*="Consult"],
         iframe[src*="cal.id"] {
-            z-index: 55 !important;
+            z-index: 80 !important;
+        }
+        /* Nudge Cal button up from home indicator / left toast zone */
+        body .calid-floating-button,
+        body [class*="calid-floating"] {
+            bottom: max(1.25rem, env(safe-area-inset-bottom, 0px)) !important;
+            left: max(1rem, env(safe-area-inset-left, 0px)) !important;
+            z-index: 80 !important;
         }
     </style>
 </head>
@@ -517,11 +638,11 @@
         </div>
 
         <!-- Practice Areas -->
-        <div class="mb-8">
+        <div class="practice-areas mb-8" id="practice-areas">
             <div class="text-gray-400 text-xs tracking-[3px] mb-3">PRACTICE AREAS</div>
-            <div class="flex flex-wrap justify-center gap-2">
-                <div class="practice-item group relative" tabindex="0">
-                    <div class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2"><i class="fa-solid fa-balance-scale text-emerald-400" aria-hidden="true"></i><span>Civil</span></div>
+            <div class="practice-pills flex flex-wrap justify-center gap-2">
+                <div class="practice-item group relative" tabindex="0" data-practice="civil">
+                    <button type="button" class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2" aria-expanded="false" aria-controls="practice-mobile-panel"><i class="fa-solid fa-balance-scale text-emerald-400" aria-hidden="true"></i><span>Civil</span></button>
                     <div class="practice-cases" role="tooltip">
                         <strong>Civil matters</strong>
                         <ul>
@@ -534,8 +655,8 @@
                         </ul>
                     </div>
                 </div>
-                <div class="practice-item group relative" tabindex="0">
-                    <div class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2"><i class="fa-solid fa-gavel text-red-400" aria-hidden="true"></i><span>Criminal</span></div>
+                <div class="practice-item group relative" tabindex="0" data-practice="criminal">
+                    <button type="button" class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2" aria-expanded="false" aria-controls="practice-mobile-panel"><i class="fa-solid fa-gavel text-red-400" aria-hidden="true"></i><span>Criminal</span></button>
                     <div class="practice-cases" role="tooltip">
                         <strong>Criminal matters</strong>
                         <ul>
@@ -548,8 +669,8 @@
                         </ul>
                     </div>
                 </div>
-                <div class="practice-item group relative" tabindex="0">
-                    <div class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2"><i class="fa-solid fa-building text-blue-400" aria-hidden="true"></i><span>Corporate</span></div>
+                <div class="practice-item group relative" tabindex="0" data-practice="corporate">
+                    <button type="button" class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2" aria-expanded="false" aria-controls="practice-mobile-panel"><i class="fa-solid fa-building text-blue-400" aria-hidden="true"></i><span>Corporate</span></button>
                     <div class="practice-cases" role="tooltip">
                         <strong>Corporate matters</strong>
                         <ul>
@@ -562,8 +683,8 @@
                         </ul>
                     </div>
                 </div>
-                <div class="practice-item group relative" tabindex="0">
-                    <div class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2"><i class="fa-solid fa-users text-pink-400" aria-hidden="true"></i><span>Family</span></div>
+                <div class="practice-item group relative" tabindex="0" data-practice="family">
+                    <button type="button" class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2" aria-expanded="false" aria-controls="practice-mobile-panel"><i class="fa-solid fa-users text-pink-400" aria-hidden="true"></i><span>Family</span></button>
                     <div class="practice-cases" role="tooltip">
                         <strong>Family matters</strong>
                         <ul>
@@ -576,8 +697,8 @@
                         </ul>
                     </div>
                 </div>
-                <div class="practice-item group relative" tabindex="0">
-                    <div class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2"><i class="fa-solid fa-landmark text-purple-400" aria-hidden="true"></i><span>Tribunals</span></div>
+                <div class="practice-item group relative" tabindex="0" data-practice="tribunals">
+                    <button type="button" class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2" aria-expanded="false" aria-controls="practice-mobile-panel"><i class="fa-solid fa-landmark text-purple-400" aria-hidden="true"></i><span>Tribunals</span></button>
                     <div class="practice-cases" role="tooltip">
                         <strong>Tribunal matters</strong>
                         <ul>
@@ -590,8 +711,8 @@
                         </ul>
                     </div>
                 </div>
-                <div class="practice-item group relative" tabindex="0">
-                    <div class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2"><i class="fa-solid fa-folder-open text-amber-400" aria-hidden="true"></i><span>Other Disputes</span></div>
+                <div class="practice-item group relative" tabindex="0" data-practice="other">
+                    <button type="button" class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2" aria-expanded="false" aria-controls="practice-mobile-panel"><i class="fa-solid fa-folder-open text-amber-400" aria-hidden="true"></i><span>Other Disputes</span></button>
                     <div class="practice-cases" role="tooltip">
                         <strong>Other disputes</strong>
                         <ul>
@@ -604,6 +725,10 @@
                         </ul>
                     </div>
                 </div>
+            </div>
+            <!-- Full-width case list for iPhone / mobile (avoids clipped hover tooltips) -->
+            <div id="practice-mobile-panel" class="practice-mobile-panel" aria-live="polite">
+                <div class="practice-cases-inner"></div>
             </div>
         </div>
 
@@ -635,7 +760,7 @@
 
     <!-- ==================== FLOATING PAY BUTTON (raised above right toasts) ==================== -->
     <button id="pay-fab" onclick="showPayModal()" 
-        class="fixed bottom-40 right-6 z-50 w-16 h-16 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full flex items-center justify-center text-3xl font-bold transition-all duration-300 hover:scale-110 active:scale-95 border-2 border-emerald-400/60">
+        class="fixed z-50 w-16 h-16 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full flex items-center justify-center text-3xl font-bold transition-all duration-300 hover:scale-110 active:scale-95 border-2 border-emerald-400/60">
         ₹
     </button>
 
@@ -741,15 +866,91 @@
         </div>
     </div>
 
-    <!-- Toast Containers -->
-    <div id="toast-left" class="fixed bottom-5 left-4 md:left-6 z-[60] flex flex-col gap-3 w-full max-w-[260px] md:max-w-xs"></div>
-    <div id="toast-right" class="fixed bottom-5 right-4 md:right-6 z-[60] flex flex-col gap-3 w-full max-w-[260px] md:max-w-xs"></div>
+    <!-- Toast Containers (left raised so Cal Consult NOW stays clear + on top) -->
+    <div id="toast-left" class="fixed flex flex-col gap-3 w-full max-w-[260px] md:max-w-xs pointer-events-none"></div>
+    <div id="toast-right" class="fixed flex flex-col gap-3 w-full max-w-[260px] md:max-w-xs pointer-events-none"></div>
 
     <script>
         // ==================== PHOTO BLUR REVEAL ====================
         function togglePhotoClear() {
             document.getElementById('photo-box').classList.toggle('is-clear');
         }
+
+        // ==================== PRACTICE AREA (mobile tap panel) ====================
+        (function initPracticeAreas() {
+            const areas = document.getElementById('practice-areas');
+            if (!areas) return;
+            const panel = document.getElementById('practice-mobile-panel');
+            const panelInner = panel ? panel.querySelector('.practice-cases-inner') : null;
+            const items = Array.from(areas.querySelectorAll('.practice-item'));
+
+            function isMobilePractice() {
+                return window.matchMedia('(max-width: 767px)').matches;
+            }
+
+            function closeAll() {
+                items.forEach(function (item) {
+                    item.classList.remove('is-open');
+                    const btn = item.querySelector('.practice-pill');
+                    if (btn) btn.setAttribute('aria-expanded', 'false');
+                });
+                if (panel) panel.classList.remove('is-visible');
+                if (panelInner) panelInner.innerHTML = '';
+            }
+
+            function openItem(item) {
+                const source = item.querySelector('.practice-cases');
+                items.forEach(function (other) {
+                    const open = other === item;
+                    other.classList.toggle('is-open', open);
+                    const btn = other.querySelector('.practice-pill');
+                    if (btn) btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+                });
+                if (isMobilePractice() && panel && panelInner && source) {
+                    panelInner.innerHTML = source.innerHTML;
+                    panel.classList.add('is-visible');
+                }
+            }
+
+            items.forEach(function (item) {
+                const btn = item.querySelector('.practice-pill');
+                if (!btn) return;
+                btn.addEventListener('click', function (e) {
+                    if (!isMobilePractice()) return;
+                    e.preventDefault();
+                    if (item.classList.contains('is-open')) {
+                        closeAll();
+                    } else {
+                        openItem(item);
+                    }
+                });
+            });
+
+            document.addEventListener('click', function (e) {
+                if (!isMobilePractice()) return;
+                if (!areas.contains(e.target)) closeAll();
+            });
+
+            window.addEventListener('resize', function () {
+                if (!isMobilePractice()) closeAll();
+            });
+        })();
+
+        // Ensure Cal floating button stays above left toasts once injected
+        (function elevateCalButton() {
+            function bump() {
+                const nodes = document.querySelectorAll(
+                    '.calid-floating-button, .cal-floating-button, [class*="calid-floating"], [class*="CalFloating"], button[aria-label*="Consult"], a[href*="cal.id"][class*="floating"]'
+                );
+                nodes.forEach(function (el) {
+                    el.style.setProperty('z-index', '80', 'important');
+                });
+            }
+            bump();
+            const obs = new MutationObserver(bump);
+            obs.observe(document.body, { childList: true, subtree: true });
+            setTimeout(function () { obs.disconnect(); }, 15000);
+        })();
 
         // ==================== PAY MODAL ====================
         function showPayModal() {
