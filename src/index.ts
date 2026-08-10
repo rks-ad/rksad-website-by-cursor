@@ -41,6 +41,7 @@ const MIME: Record<string, string> = {
   ".css": "text/css; charset=utf-8",
   ".js": "application/javascript; charset=utf-8",
   ".webp": "image/webp",
+  ".gif": "image/gif",
   ".png": "image/png",
   ".jpg": "image/jpeg",
   ".jpeg": "image/jpeg",

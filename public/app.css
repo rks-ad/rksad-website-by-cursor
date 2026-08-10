@@ -532,4 +532,6 @@ img{max-width:100%;height:auto;display:block}
 /* Modal visibility helpers */
 .flex.hidden{display:none!important}
 .hidden.flex{display:none!important}
-#pay-modal.flex,#partner-modal.flex{display:flex!important}
+/* Modals start with .hidden only; JS adds .flex when opening */
+#pay-modal.hidden,#partner-modal.hidden{display:none!important}
+#pay-modal.flex:not(.hidden),#partner-modal.flex:not(.hidden){display:flex!important}

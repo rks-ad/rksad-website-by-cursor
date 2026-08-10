@@ -33,7 +33,7 @@ Same UI, same API paths, same Resend OTP/partner emails. The visit counter uses 
 ├── views/index.html      # Full SPA (edit UI here)
 ├── public/
 │   ├── app.css           # Self-contained CSS (no Tailwind CDN)
-│   └── img/              # Optimized WebP logo/photo + UPI QR
+│   └── img/              # Optimized logo GIF + photo WebP
 ├── prisma/schema.prisma  # page_views model
 ├── Dockerfile
 ├── docker-compose.yml

@@ -204,7 +204,7 @@
         html,body{margin:0;min-height:100vh;background:#071018;color:#fff;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
         body{display:flex;align-items:center;justify-content:center}
     </style>
-    <link rel="preload" href="/img/logo-static.webp" as="image" type="image/webp">
+    <link rel="preload" href="/img/logo.gif" as="image">
     <link rel="preload" href="/app.css" as="style">
     <link rel="stylesheet" href="/app.css">
     <link rel="dns-prefetch" href="https://cal.id">
@@ -220,7 +220,7 @@
 
         <!-- Logo -->
         <div class="flex justify-center mb-6">
-            <img src="/img/logo-static.webp" alt="RKS.Ad logo — Ravi Kumar Sharma, Advocate" class="site-logo" width="200" height="90" decoding="async" fetchpriority="high">
+            <img src="/img/logo.gif" alt="RKS.Ad logo — Ravi Kumar Sharma, Advocate" class="site-logo" width="160" height="72" decoding="async" fetchpriority="high">
         </div>
 
         <!-- Profile Photo (blur reveal) -->
@@ -386,7 +386,7 @@
     </button>
 
     <!-- ==================== PAY VIA UPI MODAL ==================== -->
-    <div id="pay-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
+    <div id="pay-modal" class="hidden fixed inset-0 bg-black/70 items-center justify-center z-[100]">
         <div class="bg-zinc-900 border border-white/20 rounded-3xl p-7 w-full max-w-sm mx-4 modal">
             <div class="flex justify-between items-center mb-5">
                 <h3 class="text-xl font-semibold flex items-center gap-2">
@@ -394,13 +394,6 @@
                     Pay via UPI
                 </h3>
                 <button onclick="closePayModal()" class="text-gray-400 hover:text-white text-2xl leading-none">&times;</button>
-            </div>
-
-            <!-- QR Code -->
-            <div class="flex justify-center mb-5">
-                <div class="bg-white p-3 rounded-2xl">
-                    <img data-src="/img/upi-qr.png" alt="UPI QR code for Ravi Kumar Sharma" class="w-44 h-44 rounded-xl" width="176" height="176" loading="lazy" decoding="async">
-                </div>
             </div>
 
             <!-- UPI ID -->
@@ -442,7 +435,7 @@
     </div>
 
     <!-- Partner Modal -->
-    <div id="partner-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-[100]">
+    <div id="partner-modal" class="hidden fixed inset-0 bg-black/70 items-center justify-center z-[100]">
         <div class="bg-zinc-900 border border-white/20 rounded-3xl p-8 w-full max-w-md mx-4 modal">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-xl font-semibold">Partner with RKS</h3>
@@ -610,10 +603,6 @@
         // ==================== PAY MODAL ====================
         function showPayModal() {
             const modal = document.getElementById('pay-modal');
-            const qr = modal.querySelector('img[data-src]');
-            if (qr && !qr.getAttribute('src')) {
-                qr.setAttribute('src', qr.getAttribute('data-src'));
-            }
             modal.classList.remove('hidden');
             modal.classList.add('flex');
         }
