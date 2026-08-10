@@ -199,386 +199,15 @@
     </script>
 
 
-    <!-- Prevent FOUC: hide until critical layout + Tailwind are ready -->
-    <script>document.documentElement.classList.add('js');</script>
-    <style>
-        :root {
-            --bg-deep: #071018;
-            --bg-mid: #0c1824;
-            --accent-cyan: #00f5ff;
-            --accent-emerald: #10b981;
-            --accent-brand: #1e5c8f;
-        }
-        html.js body { opacity: 0; }
-        html.js.ready body { opacity: 1; transition: opacity 0.4s ease; }
-        html, body {
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-            background: var(--bg-deep);
-            color: #fff;
-            margin: 0;
-            min-height: 100vh;
-        }
-        body {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow-x: hidden;
-            background:
-                radial-gradient(ellipse 90% 55% at 15% -5%, rgba(0, 245, 255, 0.14), transparent 55%),
-                radial-gradient(ellipse 70% 45% at 95% 5%, rgba(16, 185, 129, 0.12), transparent 50%),
-                radial-gradient(ellipse 55% 40% at 50% 110%, rgba(30, 92, 143, 0.22), transparent 55%),
-                linear-gradient(165deg, #060910 0%, #0a1520 38%, #0c1a28 72%, #071018 100%);
-        }
-        /* Critical first-paint layout (before Tailwind CDN) */
-        main.page-shell {
-            text-align: center;
-            width: 100%;
-            max-width: 56rem;
-            padding: 1.5rem 1.5rem;
-            position: relative;
-            z-index: 10;
-        }
-        #logo {
-            font-size: 4.5rem;
-            font-weight: 700;
-            letter-spacing: -0.05em;
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin: 0 0 0.5rem;
-            line-height: 1;
-        }
-        @media (min-width: 768px) {
-            #logo { font-size: 9rem; }
-        }
-        .text-cyan-400 { color: #22d3ee; }
-        .text-white { color: #fff; }
-        .text-gray-400 { color: #9ca3af; }
-        .text-red-400 { color: #f87171; }
-        .text-yellow-400 { color: #facc15; }
-        .text-emerald-400 { color: #34d399; }
-        .text-blue-400 { color: #60a5fa; }
-        .text-pink-400 { color: #f472b6; }
-        .text-purple-400 { color: #c084fc; }
-        .text-amber-400 { color: #fbbf24; }
+        <style>
+        /* Instant paint shell while /app.css arrives (same-origin, ~20KB) */
+        html,body{margin:0;min-height:100vh;background:#071018;color:#fff;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+        body{display:flex;align-items:center;justify-content:center}
     </style>
-
-    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preload" href="/img/logo-static.webp" as="image" type="image/webp">
+    <link rel="preload" href="/app.css" as="style">
+    <link rel="stylesheet" href="/app.css">
     <link rel="dns-prefetch" href="https://cal.id">
-    <script src="https://cdn.tailwindcss.com" onload="document.documentElement.classList.add('ready')"></script>
-    <script>setTimeout(function(){ document.documentElement.classList.add('ready'); }, 900);</script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <style>
-        .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
-        .logo-letter { transition: all 0.4s ease; }
-        .logo-letter:hover { color: #00f5ff; text-shadow: 0 0 25px #00f5ff; transform: scale(1.1); }
-        .practice-pill { transition: all 0.3s ease; cursor: default; }
-        .practice-pill:hover { transform: translateY(-2px); }
-        .toast { animation: slideIn 0.4s ease forwards; touch-action: none; cursor: grab; user-select: none; pointer-events: auto; }
-        .toast:active { cursor: grabbing; }
-        @keyframes slideIn { from { opacity:0; transform:translateX(var(--start-x)); } to { opacity:1; transform:translateX(0); } }
-        .toast-exit { animation: slideOut 0.35s ease forwards; }
-        @keyframes slideOut { to { opacity:0; transform:translateX(var(--end-x)); } }
-        .modal { animation: fadeInScale 0.2s ease forwards; }
-        @keyframes fadeInScale { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
-
-        /* ===== Animated atmosphere ===== */
-        .bg-fx {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            pointer-events: none;
-            overflow: hidden;
-        }
-        .bg-fx::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background-image:
-                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-            background-size: 64px 64px;
-            mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 20%, transparent 75%);
-            opacity: 0.45;
-        }
-        .bg-orb {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(72px);
-            opacity: 0.45;
-            will-change: transform;
-        }
-        .bg-orb-a {
-            width: 42vw; height: 42vw; max-width: 520px; max-height: 520px;
-            left: -8%; top: -12%;
-            background: radial-gradient(circle, rgba(0,245,255,0.55), transparent 70%);
-            animation: orbDriftA 16s ease-in-out infinite alternate;
-        }
-        .bg-orb-b {
-            width: 38vw; height: 38vw; max-width: 460px; max-height: 460px;
-            right: -10%; top: 8%;
-            background: radial-gradient(circle, rgba(16,185,129,0.5), transparent 70%);
-            animation: orbDriftB 19s ease-in-out infinite alternate;
-        }
-        .bg-orb-c {
-            width: 50vw; height: 36vw; max-width: 580px; max-height: 420px;
-            left: 25%; bottom: -18%;
-            background: radial-gradient(circle, rgba(30,92,143,0.55), transparent 70%);
-            animation: orbDriftC 22s ease-in-out infinite alternate;
-        }
-        @keyframes orbDriftA {
-            from { transform: translate(0, 0) scale(1); }
-            to { transform: translate(8%, 12%) scale(1.12); }
-        }
-        @keyframes orbDriftB {
-            from { transform: translate(0, 0) scale(1); }
-            to { transform: translate(-10%, 8%) scale(1.08); }
-        }
-        @keyframes orbDriftC {
-            from { transform: translate(0, 0) scale(1); }
-            to { transform: translate(6%, -10%) scale(1.15); }
-        }
-
-        /* ===== Photo reveal box ===== */
-        .photo-box {
-            width: 150px;
-            height: 150px;
-            border-radius: 22px;
-            overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.25);
-            box-shadow: 0 20px 45px rgba(0,0,0,0.45);
-            cursor: pointer;
-            position: relative;
-            background: #111;
-        }
-        .photo-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            filter: blur(11px);
-            transform: scale(1.12);
-            transition: filter 0.45s ease, transform 0.45s ease;
-        }
-        .photo-box:hover img,
-        .photo-box.is-clear img {
-            filter: blur(0);
-            transform: scale(1);
-        }
-        .photo-box .photo-hint {
-            position: absolute;
-            bottom: 6px;
-            left: 0;
-            right: 0;
-            text-align: center;
-            font-size: 10px;
-            letter-spacing: 1px;
-            color: rgba(255,255,255,0.75);
-            text-transform: uppercase;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
-        }
-        .photo-box:hover .photo-hint,
-        .photo-box.is-clear .photo-hint {
-            opacity: 0;
-        }
-
-        /* ===== Practice area case hover / tap cards ===== */
-        .practice-areas {
-            position: relative;
-        }
-        .practice-item {
-            position: relative;
-        }
-        .practice-pill {
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-            color: inherit;
-            font: inherit;
-            appearance: none;
-            -webkit-appearance: none;
-            cursor: pointer;
-        }
-        .practice-cases {
-            position: absolute;
-            left: 50%;
-            bottom: calc(100% + 12px);
-            transform: translateX(-50%) translateY(6px);
-            width: max-content;
-            max-width: min(280px, 82vw);
-            padding: 12px 14px;
-            border-radius: 14px;
-            background: rgba(9, 14, 22, 0.94);
-            border: 1px solid rgba(255,255,255,0.14);
-            box-shadow: 0 18px 40px rgba(0,0,0,0.45);
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-            transition: opacity 0.28s ease, transform 0.28s ease, visibility 0.28s;
-            z-index: 40;
-            text-align: left;
-        }
-        .practice-cases::after {
-            content: "";
-            position: absolute;
-            left: 50%;
-            top: 100%;
-            transform: translateX(-50%);
-            border: 7px solid transparent;
-            border-top-color: rgba(9, 14, 22, 0.94);
-        }
-        @media (hover: hover) and (pointer: fine) {
-            .practice-item:hover .practice-cases,
-            .practice-item:focus-within .practice-cases {
-                opacity: 1;
-                visibility: visible;
-                transform: translateX(-50%) translateY(0);
-            }
-        }
-        .practice-item.is-open .practice-cases {
-            opacity: 1;
-            visibility: visible;
-            transform: translateX(-50%) translateY(0);
-        }
-        .practice-cases strong {
-            display: block;
-            font-size: 10px;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: rgba(165, 243, 252, 0.9);
-            margin-bottom: 8px;
-        }
-        .practice-cases ul {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
-        .practice-cases li {
-            font-size: 11px;
-            line-height: 1.3;
-            color: rgba(228, 228, 231, 0.95);
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 999px;
-            padding: 4px 9px;
-        }
-
-        /* iPhone / small screens: full-width panel under pills (never clipped) */
-        .practice-mobile-panel {
-            display: none;
-        }
-        @media (max-width: 767px) {
-            .practice-cases {
-                display: none !important;
-            }
-            .practice-mobile-panel {
-                display: block;
-                margin-top: 12px;
-                min-height: 0;
-            }
-            .practice-mobile-panel .practice-cases-inner {
-                padding: 14px 14px;
-                border-radius: 16px;
-                background: rgba(9, 14, 22, 0.94);
-                border: 1px solid rgba(255,255,255,0.14);
-                box-shadow: 0 14px 32px rgba(0,0,0,0.4);
-                text-align: left;
-                opacity: 0;
-                transform: translateY(8px);
-                max-height: 0;
-                overflow: hidden;
-                pointer-events: none;
-                transition: opacity 0.28s ease, transform 0.28s ease, max-height 0.35s ease, padding 0.28s ease, margin 0.28s ease, border-width 0.28s ease;
-                padding-top: 0;
-                padding-bottom: 0;
-                border-width: 0;
-                margin: 0;
-            }
-            .practice-mobile-panel.is-visible .practice-cases-inner {
-                opacity: 1;
-                transform: translateY(0);
-                max-height: 280px;
-                pointer-events: auto;
-                padding: 14px;
-                border-width: 1px;
-            }
-            .practice-mobile-panel .practice-cases-inner strong {
-                display: block;
-                font-size: 10px;
-                letter-spacing: 1.5px;
-                text-transform: uppercase;
-                color: rgba(165, 243, 252, 0.9);
-                margin-bottom: 8px;
-            }
-            .practice-mobile-panel .practice-cases-inner ul {
-                list-style: none;
-                margin: 0;
-                padding: 0;
-                display: flex;
-                flex-wrap: wrap;
-                gap: 6px;
-            }
-            .practice-mobile-panel .practice-cases-inner li {
-                font-size: 12px;
-                line-height: 1.35;
-                color: rgba(228, 228, 231, 0.95);
-                background: rgba(255,255,255,0.06);
-                border: 1px solid rgba(255,255,255,0.08);
-                border-radius: 999px;
-                padding: 5px 10px;
-            }
-            .practice-item.is-open .practice-pill {
-                background: rgba(255,255,255,0.22);
-                border-color: rgba(255,255,255,0.55);
-            }
-        }
-
-        /* Floating Pay Button */
-        #pay-fab {
-            box-shadow: 0 0 30px rgba(16, 185, 129, 0.55);
-            animation: pulse-glow 2.5s ease-in-out infinite;
-            bottom: calc(10rem + env(safe-area-inset-bottom, 0px));
-            right: max(1.5rem, env(safe-area-inset-right, 0px));
-        }
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 25px rgba(16, 185, 129, 0.5); }
-            50% { box-shadow: 0 0 40px rgba(16, 185, 129, 0.8); }
-        }
-
-        /* Left toasts at bottom-left (Cal sits mid-left, so no overlap) */
-        #toast-left {
-            bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
-            left: max(1rem, env(safe-area-inset-left, 0px));
-            z-index: 60;
-            max-width: min(260px, calc(100vw - 2rem));
-        }
-        #toast-right {
-            bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
-            right: max(1rem, env(safe-area-inset-right, 0px));
-            z-index: 60;
-        }
-        @media (min-width: 768px) {
-            #toast-left {
-                left: max(1.5rem, env(safe-area-inset-left, 0px));
-            }
-        }
-
-        /* Cal floating button: left-middle, above toasts, below modals */
-        cal-floating-button,
-        .calid-floating-button,
-        .cal-floating-button,
-        [class*="calid-floating"],
-        [class*="CalFloating"] {
-            z-index: 80 !important;
-        }
-        iframe[src*="cal.id"] {
-            z-index: 80 !important;
-        }
-    </style>
 </head>
 <body>
     <div class="bg-fx" aria-hidden="true">
@@ -591,14 +220,13 @@
 
         <!-- Logo -->
         <div class="flex justify-center mb-6">
-            <img src="https://pub-1ed86eb4d93c4a50befdc06c2eb497c1.r2.dev/rks-adlogo%2Bfinal_comp.gif" 
-                 alt="RKS.Ad logo — Ravi Kumar Sharma, Advocate" class="max-h-[90px] w-auto max-w-[200px]" width="200" height="90">
+            <img src="/img/logo-static.webp" alt="RKS.Ad logo — Ravi Kumar Sharma, Advocate" class="site-logo" width="200" height="90" decoding="async" fetchpriority="high">
         </div>
 
         <!-- Profile Photo (blur reveal) -->
         <div class="flex justify-center mb-6">
             <div class="photo-box" id="photo-box" onclick="togglePhotoClear()">
-                <img src="https://pub-1ed86eb4d93c4a50befdc06c2eb497c1.r2.dev/rksphoto%20(2).JPG" alt="Ravi Kumar Sharma, Advocate in Jaipur" width="150" height="150">
+                <img src="/img/photo.webp" alt="Ravi Kumar Sharma, Advocate in Jaipur" width="150" height="150" decoding="async" loading="eager">
                 <span class="photo-hint">Tap / Hover</span>
             </div>
         </div>
@@ -616,7 +244,7 @@
         <!-- Email under logo -->
         <div class="mb-8">
             <a href="mailto:iam@rks.ad" class="inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-all duration-300 text-lg font-medium hover:scale-105">
-                <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
                 <span>iam@rks.ad</span>
             </a>
         </div>
@@ -635,7 +263,7 @@
             <div class="text-gray-400 text-xs tracking-[3px] mb-3">PRACTICE AREAS</div>
             <div class="practice-pills flex flex-wrap justify-center gap-2">
                 <div class="practice-item group relative" tabindex="0" data-practice="civil">
-                    <button type="button" class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2" aria-expanded="false" aria-controls="practice-mobile-panel"><i class="fa-solid fa-balance-scale text-emerald-400" aria-hidden="true"></i><span>Civil</span></button>
+                    <button type="button" class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2" aria-expanded="false" aria-controls="practice-mobile-panel"><svg class="icon text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg><span>Civil</span></button>
                     <div class="practice-cases" role="tooltip">
                         <strong>Civil matters</strong>
                         <ul>
@@ -649,7 +277,7 @@
                     </div>
                 </div>
                 <div class="practice-item group relative" tabindex="0" data-practice="criminal">
-                    <button type="button" class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2" aria-expanded="false" aria-controls="practice-mobile-panel"><i class="fa-solid fa-gavel text-red-400" aria-hidden="true"></i><span>Criminal</span></button>
+                    <button type="button" class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2" aria-expanded="false" aria-controls="practice-mobile-panel"><svg class="icon text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m14 13-8.381 8.38a1 1 0 0 1-3.001-3l8.384-8.381"/><path d="m16 16 6-6"/><path d="m21.5 10.5-1.5-1.5"/><path d="m8 8 6-6"/><path d="m8.5 7.5 1.5 1.5"/></svg><span>Criminal</span></button>
                     <div class="practice-cases" role="tooltip">
                         <strong>Criminal matters</strong>
                         <ul>
@@ -663,7 +291,7 @@
                     </div>
                 </div>
                 <div class="practice-item group relative" tabindex="0" data-practice="corporate">
-                    <button type="button" class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2" aria-expanded="false" aria-controls="practice-mobile-panel"><i class="fa-solid fa-building text-blue-400" aria-hidden="true"></i><span>Corporate</span></button>
+                    <button type="button" class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2" aria-expanded="false" aria-controls="practice-mobile-panel"><svg class="icon text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="16" height="20" x="4" y="2" rx="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg><span>Corporate</span></button>
                     <div class="practice-cases" role="tooltip">
                         <strong>Corporate matters</strong>
                         <ul>
@@ -677,7 +305,7 @@
                     </div>
                 </div>
                 <div class="practice-item group relative" tabindex="0" data-practice="family">
-                    <button type="button" class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2" aria-expanded="false" aria-controls="practice-mobile-panel"><i class="fa-solid fa-users text-pink-400" aria-hidden="true"></i><span>Family</span></button>
+                    <button type="button" class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2" aria-expanded="false" aria-controls="practice-mobile-panel"><svg class="icon text-pink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Family</span></button>
                     <div class="practice-cases" role="tooltip">
                         <strong>Family matters</strong>
                         <ul>
@@ -691,7 +319,7 @@
                     </div>
                 </div>
                 <div class="practice-item group relative" tabindex="0" data-practice="tribunals">
-                    <button type="button" class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2" aria-expanded="false" aria-controls="practice-mobile-panel"><i class="fa-solid fa-landmark text-purple-400" aria-hidden="true"></i><span>Tribunals</span></button>
+                    <button type="button" class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2" aria-expanded="false" aria-controls="practice-mobile-panel"><svg class="icon text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 18v-7"/><path d="M11.12 2.198a2 2 0 0 1 1.76.006l7.866 3.805c.84.407.84 1.67 0 2.077L12.88 11.8a2 2 0 0 1-1.76 0L3.254 7.986c-.84-.407-.84-1.67 0-2.077z"/><path d="M14 18v-7"/><path d="M18 18v-7"/><path d="M3 22h18"/><path d="M6 18v-7"/></svg><span>Tribunals</span></button>
                     <div class="practice-cases" role="tooltip">
                         <strong>Tribunal matters</strong>
                         <ul>
@@ -705,7 +333,7 @@
                     </div>
                 </div>
                 <div class="practice-item group relative" tabindex="0" data-practice="other">
-                    <button type="button" class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2" aria-expanded="false" aria-controls="practice-mobile-panel"><i class="fa-solid fa-folder-open text-amber-400" aria-hidden="true"></i><span>Other Disputes</span></button>
+                    <button type="button" class="practice-pill px-4 py-1.5 bg-white/10 hover:bg-white/20 border border-white/30 rounded-full text-sm flex items-center gap-2" aria-expanded="false" aria-controls="practice-mobile-panel"><svg class="icon text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"/></svg><span>Other Disputes</span></button>
                     <div class="practice-cases" role="tooltip">
                         <strong>Other disputes</strong>
                         <ul>
@@ -728,13 +356,13 @@
         <!-- Buttons -->
         <div class="flex flex-col sm:flex-row gap-4 justify-center mb-16">
             <button onclick="showPartnerModal()" class="flex items-center justify-center gap-3 px-7 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-3xl text-base font-medium">
-                <i class="fa-solid fa-handshake" aria-hidden="true"></i> <span>Partner with RKS</span>
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"/><path d="m21 3 1 11h-2"/><path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"/><path d="M3 4h8"/></svg> <span>Partner with RKS</span>
             </button>
             <a href="https://cal.id/lawup/rks" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-3 px-7 py-4 bg-white/10 hover:bg-white/20 border border-white/40 rounded-3xl text-base font-medium">
-                <i class="fa-solid fa-calendar-days text-xl" aria-hidden="true"></i> <span>Book Consultation</span>
+                <svg class="icon icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg> <span>Book Consultation</span>
             </a>
             <a href="https://ecourtsindia.com/advocate/ravi-kumar-sharma" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-3 px-7 py-4 bg-white/10 hover:bg-white/20 border border-white/40 rounded-3xl text-base font-medium">
-                <i class="fa-solid fa-gavel" aria-hidden="true"></i> <span>See Cases</span>
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m14 13-8.381 8.38a1 1 0 0 1-3.001-3l8.384-8.381"/><path d="m16 16 6-6"/><path d="m21.5 10.5-1.5-1.5"/><path d="m8 8 6-6"/><path d="m8.5 7.5 1.5 1.5"/></svg> <span>See Cases</span>
             </a>
         </div>
 
@@ -762,7 +390,7 @@
         <div class="bg-zinc-900 border border-white/20 rounded-3xl p-7 w-full max-w-sm mx-4 modal">
             <div class="flex justify-between items-center mb-5">
                 <h3 class="text-xl font-semibold flex items-center gap-2">
-                    <i class="fa-solid fa-indian-rupee-sign text-emerald-400"></i>
+                    <svg class="icon text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12"/><path d="M6 8h12"/><path d="m6 13 8.5 8"/><path d="M6 13h3"/><path d="M9 13c6.667 0 6.667-10 0-10"/></svg>
                     Pay via UPI
                 </h3>
                 <button onclick="closePayModal()" class="text-gray-400 hover:text-white text-2xl leading-none">&times;</button>
@@ -771,8 +399,7 @@
             <!-- QR Code -->
             <div class="flex justify-center mb-5">
                 <div class="bg-white p-3 rounded-2xl">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=rksad@pnb&pn=Ravi%20Kumar%20Sharma&cu=INR" 
-                         alt="UPI QR code for Ravi Kumar Sharma" class="w-44 h-44 rounded-xl" width="176" height="176">
+                    <img data-src="/img/upi-qr.png" alt="UPI QR code for Ravi Kumar Sharma" class="w-44 h-44 rounded-xl" width="176" height="176" loading="lazy" decoding="async">
                 </div>
             </div>
 
@@ -784,7 +411,7 @@
                         rksad@pnb
                     </div>
                     <button onclick="copyText('rksad@pnb', this)" class="bg-zinc-800 hover:bg-zinc-700 border border-white/20 rounded-xl px-3.5 py-3 text-white">
-                        <i class="fa-regular fa-copy"></i>
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
                     </button>
                 </div>
             </div>
@@ -797,7 +424,7 @@
                         910910001
                     </div>
                     <button onclick="copyText('910910001', this)" class="bg-zinc-800 hover:bg-zinc-700 border border-white/20 rounded-xl px-3.5 py-3 text-white">
-                        <i class="fa-regular fa-copy"></i>
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
                     </button>
                 </div>
             </div>
@@ -805,7 +432,7 @@
             <!-- Pay Now Button -->
             <a href="upi://pay?pa=rksad@pnb&pn=Ravi%20Kumar%20Sharma&cu=INR" 
                class="block w-full bg-emerald-600 hover:bg-emerald-500 text-white text-center py-3.5 rounded-2xl font-semibold text-lg transition-all active:scale-[0.98]">
-                <i class="fa-solid fa-bolt mr-2"></i> Pay Now
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg> Pay Now
             </a>
 
             <p class="text-center text-xs text-gray-500 mt-4">
@@ -852,7 +479,7 @@
 
             <!-- Final Success -->
             <div id="step-success" class="hidden text-center py-6">
-                <i class="fa-solid fa-check-circle text-emerald-400 text-5xl mb-4"></i>
+                <svg class="icon icon-5xl text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
                 <h4 class="text-xl font-semibold mb-2">Thank You!</h4>
                 <p class="text-gray-400">Your details have been submitted successfully.<br>We will contact you soon.</p>
             </div>
@@ -982,8 +609,13 @@
 
         // ==================== PAY MODAL ====================
         function showPayModal() {
-            document.getElementById('pay-modal').classList.remove('hidden');
-            document.getElementById('pay-modal').classList.add('flex');
+            const modal = document.getElementById('pay-modal');
+            const qr = modal.querySelector('img[data-src]');
+            if (qr && !qr.getAttribute('src')) {
+                qr.setAttribute('src', qr.getAttribute('data-src'));
+            }
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
         }
 
         function closePayModal() {
@@ -994,7 +626,7 @@
         function copyText(text, btn) {
             navigator.clipboard.writeText(text).then(() => {
                 const original = btn.innerHTML;
-                btn.innerHTML = '<i class="fa-solid fa-check text-emerald-400"></i>';
+                btn.innerHTML = '<svg class="icon text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
                 setTimeout(() => btn.innerHTML = original, 1500);
             });
         }
@@ -1135,7 +767,7 @@
 
             toast.innerHTML =
                 '<div class="text-emerald-400 mt-0.5 flex-shrink-0">' +
-                    '<i class="fa-solid fa-calendar-check text-xl"></i>' +
+                    '<svg class="icon icon-xl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></svg>' +
                 '</div>' +
                 '<div class="text-sm leading-snug">' +
                     '<span class="font-semibold">' + name + '</span> has just booked a consultation' +
@@ -1165,7 +797,7 @@
 
             toast.innerHTML =
                 '<div class="text-yellow-400 mt-0.5 flex-shrink-0">' +
-                    '<i class="fa-solid fa-star text-xl"></i>' +
+                    '<svg class="icon icon-xl" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.9L22 10.3l-5 4.9 1.2 7L12 18.8 5.8 22.2 7 15.2 2 10.3l7.1-1.4L12 2z"/></svg>' +
                 '</div>' +
                 '<div class="text-sm leading-snug">' +
                     '<span class="font-semibold">' + name + '</span> rated <span class="font-bold text-yellow-400">' + rating + '</span> ★★★★★' +
@@ -1449,63 +1081,72 @@
             liveCounterTimer = setTimeout(poll, 4200 + Math.floor(Math.random() * 1800));
         }
 
-        window.onload = function() {
+        function bootApp() {
             loadCounter();
             randomLiveVisitors();
             startToastNotifications();
-            document.documentElement.classList.add('ready');
-        };
-    </script>
+            // Defer Cal embed until idle so it never blocks first paint
+            const loadCal = function () {
+              if (window.__rksCalLoaded) return;
+              window.__rksCalLoaded = true;
+              (function (C, A, L) {
+                let p = function (a, ar) { a.q.push(ar); };
+                let d = C.document;
+                C.Cal = C.Cal || function () {
+                  let cal = C.Cal;
+                  let ar = arguments;
+                  if (!cal.loaded) {
+                    cal.ns = {};
+                    cal.q = cal.q || [];
+                    d.head.appendChild(d.createElement("script")).src = A;
+                    cal.loaded = true;
+                  }
+                  if (ar[0] === L) {
+                    const api = function () { p(api, arguments); };
+                    const namespace = ar[1];
+                    api.q = api.q || [];
+                    if (typeof namespace === "string") {
+                      cal.ns[namespace] = cal.ns[namespace] || api;
+                      p(cal.ns[namespace], ar);
+                      p(cal, ["initNamespace", namespace]);
+                    } else p(cal, ar);
+                    return;
+                  }
+                  p(cal, ar);
+                };
+              })(window, "https://cal.id/embed-link/embed.js", "init");
 
-    <!-- Cal.id floating Consult NOW widget (vanilla equivalent of @calid/react-embed) -->
-    <script>
-      (function (C, A, L) {
-        let p = function (a, ar) { a.q.push(ar); };
-        let d = C.document;
-        C.Cal = C.Cal || function () {
-          let cal = C.Cal;
-          let ar = arguments;
-          if (!cal.loaded) {
-            cal.ns = {};
-            cal.q = cal.q || [];
-            d.head.appendChild(d.createElement("script")).src = A;
-            cal.loaded = true;
-          }
-          if (ar[0] === L) {
-            const api = function () { p(api, arguments); };
-            const namespace = ar[1];
-            api.q = api.q || [];
-            if (typeof namespace === "string") {
-              cal.ns[namespace] = cal.ns[namespace] || api;
-              p(cal.ns[namespace], ar);
-              p(cal, ["initNamespace", namespace]);
-            } else p(cal, ar);
-            return;
-          }
-          p(cal, ar);
-        };
-      })(window, "https://cal.id/embed-link/embed.js", "init");
-
-      Cal("init", "default", { origin: "https://cal.id" });
-      Cal.ns["default"]("floatingButton", {
-        calLink: "lawup/rks",
-        calOrigin: "https://cal.id",
-        config: { layout: "month_view" },
-        buttonText: "Consult NOW",
-        hideButtonIcon: false,
-        // API only allows bottom-left/right; CSS/JS move it to left-middle
-        buttonPosition: "bottom-left",
-        buttonColor: "#000000",
-        buttonTextColor: "#ffffff"
-      });
-      Cal.ns["default"]("ui", {
-        cssVarsPerTheme: {
-          light: { "cal-brand": "#1e5c8f" },
-          dark: { "cal-brand": "#fafafa" }
-        },
-        hideEventTypeDetails: false,
-        layout: "week_view"
-      });
+              Cal("init", "default", { origin: "https://cal.id" });
+              Cal.ns["default"]("floatingButton", {
+                calLink: "lawup/rks",
+                calOrigin: "https://cal.id",
+                config: { layout: "month_view" },
+                buttonText: "Consult NOW",
+                hideButtonIcon: false,
+                buttonPosition: "bottom-left",
+                buttonColor: "#000000",
+                buttonTextColor: "#ffffff"
+              });
+              Cal.ns["default"]("ui", {
+                cssVarsPerTheme: {
+                  light: { "cal-brand": "#1e5c8f" },
+                  dark: { "cal-brand": "#fafafa" }
+                },
+                hideEventTypeDetails: false,
+                layout: "week_view"
+              });
+            };
+            if ('requestIdleCallback' in window) {
+              requestIdleCallback(loadCal, { timeout: 2500 });
+            } else {
+              setTimeout(loadCal, 1200);
+            }
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', bootApp);
+        } else {
+            bootApp();
+        }
     </script>
 </body>
 </html>

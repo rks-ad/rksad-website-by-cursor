@@ -1,8 +1,8 @@
 import "dotenv/config";
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
-import { readFileSync, existsSync } from "node:fs";
-import { join, dirname } from "node:path";
+import { readFileSync, existsSync, statSync } from "node:fs";
+import { join, dirname, extname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { sendOtp, verifyOtp, submitPartner } from "./routes/partner.js";
 import { getAndIncrementCounter, getLiveCounter } from "./counter.js";
@@ -22,8 +22,32 @@ function resolveViewsDir(): string {
   return candidates[0];
 }
 
+function resolvePublicDir(): string {
+  const candidates = [
+    join(__dirname, "..", "public"),
+    join(process.cwd(), "public"),
+  ];
+  for (const dir of candidates) {
+    if (existsSync(dir)) return dir;
+  }
+  return candidates[0];
+}
+
 const viewsDir = resolveViewsDir();
+const publicDir = resolvePublicDir();
 const htmlContent = readFileSync(join(viewsDir, "index.html"), "utf-8");
+
+const MIME: Record<string, string> = {
+  ".css": "text/css; charset=utf-8",
+  ".js": "application/javascript; charset=utf-8",
+  ".webp": "image/webp",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".svg": "image/svg+xml",
+  ".ico": "image/x-icon",
+  ".woff2": "font/woff2",
+};
 
 const PORT = Number(process.env.PORT || 3000);
 const SITE_URL = (process.env.SITE_URL || "https://rks.ad").replace(/\/$/, "");
@@ -31,6 +55,33 @@ const SITE_URL = (process.env.SITE_URL || "https://rks.ad").replace(/\/$/, "");
 logEmailConfigAtStartup();
 
 const app = new Hono();
+
+/** Serve optimized static assets from /public (CSS + images). */
+app.get("/app.css", (c) => {
+  const file = join(publicDir, "app.css");
+  if (!existsSync(file)) return c.notFound();
+  const body = readFileSync(file);
+  return c.body(body, 200, {
+    "Content-Type": "text/css; charset=utf-8",
+    "Cache-Control": "public, max-age=86400, stale-while-revalidate=604800",
+  });
+});
+
+app.get("/img/:name", (c) => {
+  const name = c.req.param("name");
+  if (!name || name.includes("..") || name.includes("/") || name.includes("\\")) {
+    return c.notFound();
+  }
+  const file = join(publicDir, "img", name);
+  if (!existsSync(file) || !statSync(file).isFile()) return c.notFound();
+  const ext = extname(file).toLowerCase();
+  const type = MIME[ext] || "application/octet-stream";
+  const body = readFileSync(file);
+  return c.body(body, 200, {
+    "Content-Type": type,
+    "Cache-Control": "public, max-age=31536000, immutable",
+  });
+});
 
 // --- SEO ---
 app.get("/sitemap.xml", (c) => {
