@@ -109,8 +109,10 @@ app.get("/health", (c) => {
     resendKeyPresent: email.resendKeyPresent,
     resendKeyMasked: email.resendKeyMasked,
     resendEnvNamesFound: email.resendEnvNamesFound,
+    relatedEnvNames: email.relatedEnvNames,
     fromEmail: email.fromEmail,
     partnerNotifyEmail: email.partnerNotifyEmail,
+    hint: email.hint,
   });
 });
 
