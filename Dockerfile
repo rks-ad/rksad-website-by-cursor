@@ -34,6 +34,7 @@ RUN npm ci --omit=dev || npm install --omit=dev \
 
 COPY --from=builder /app/dist ./dist
 COPY views ./views
+COPY public ./public
 COPY docker-entrypoint.sh ./docker-entrypoint.sh
 
 RUN chmod +x ./docker-entrypoint.sh && chown app:app ./docker-entrypoint.sh

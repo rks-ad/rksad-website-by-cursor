@@ -25,12 +25,15 @@ Same UI, same API paths, same Resend OTP/partner emails. The visit counter uses 
 
 ```
 ├── src/
-│   ├── index.ts          # Entry: routes + HTML serve
+│   ├── index.ts          # Entry: routes + HTML + static assets
 │   ├── counter.ts        # Postgres + file fallback
 │   ├── otp-store.ts      # Memory / Redis OTP
 │   ├── resend.ts         # Resend helper
 │   └── routes/partner.ts # send-otp, verify-otp, submit-partner
 ├── views/index.html      # Full SPA (edit UI here)
+├── public/
+│   ├── app.css           # Self-contained CSS (no Tailwind CDN)
+│   └── img/              # Optimized WebP logo/photo + UPI QR
 ├── prisma/schema.prisma  # page_views model
 ├── Dockerfile
 ├── docker-compose.yml
@@ -45,7 +48,9 @@ Same UI, same API paths, same Resend OTP/partner emails. The visit counter uses 
 | Method | Path | Behaviour |
 |--------|------|-----------|
 | `GET` | `/` | Serves `views/index.html` |
-| `GET` | `/api/counter` | Increment counter by 1 → `{ count }` |
+| `GET` | `/app.css` | Self-contained stylesheet |
+| `GET` | `/img/:name` | Optimized static images |
+| `GET` | `/api/counter` | Increment counter → `{ count }` |
 | `POST` | `/api/send-otp` | Generate OTP, email via Resend |
 | `POST` | `/api/verify-otp` | Check OTP |
 | `POST` | `/api/submit-partner` | Email partnership details to `iam@rks.ad` |
