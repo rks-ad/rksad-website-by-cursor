@@ -204,7 +204,7 @@
         /* Instant paint shell while /app.css arrives (same-origin, ~20KB) */
         html,body{margin:0;min-height:100vh;background:#071018;color:#fff;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
         body{display:flex;align-items:center;justify-content:center}
-    .visit-odometer{display:flex;align-items:center;justify-content:center;gap:clamp(2px,.45vw,6px);margin:12px auto 0;min-height:1.45em;font-size:clamp(2rem,8vw,4.25rem);font-weight:700;font-variant-numeric:tabular-nums}.visit-digit{position:relative;display:inline-flex;justify-content:center;align-items:center;overflow:hidden;width:.76em;height:1.18em;border-radius:.12em;color:#a5f3fc;background:linear-gradient(180deg,#163941,#0e252e);border:1px solid #63d9e944;box-shadow:0 7px 18px #0004,inset 0 1px #ffffff15}.visit-digit span{display:block}.visit-digit.changed span{animation:digit-enter .4s ease-out}.visit-comma{align-self:flex-end;line-height:1;margin-bottom:.05em;color:#8ddce5}.policy-footer{margin:3.5rem 0 1rem;text-align:left;border-top:1px solid #ffffff1c;padding-top:1rem}.policy-footer nav{display:flex;flex-wrap:wrap;gap:.6rem 1.1rem}.policy-footer a{color:#a8bcc2;font-size:.75rem;text-decoration:none}.policy-footer a:hover,.policy-footer a:focus-visible{color:#a5f3fc;text-decoration:underline}@keyframes digit-enter{from{transform:translateY(80%);opacity:.25}to{transform:translateY(0);opacity:1}}@media(prefers-reduced-motion:reduce){.visit-digit.changed span{animation:none}}
+    .visit-odometer{display:flex;align-items:center;justify-content:center;gap:clamp(2px,.45vw,6px);margin:12px auto 0;min-height:1.45em;font-size:clamp(2rem,8vw,4.25rem);font-weight:700;font-variant-numeric:tabular-nums}.visit-digit{position:relative;display:inline-flex;justify-content:center;align-items:center;overflow:hidden;width:.76em;height:1.18em;border-radius:.12em;color:#a5f3fc;background:linear-gradient(180deg,#163941,#0e252e);border:1px solid #63d9e944;box-shadow:0 7px 18px #0004,inset 0 1px #ffffff15}.visit-digit .digit-strip{position:absolute;left:0;right:0;top:0;display:block;will-change:transform}.visit-digit .digit-cell{display:flex;height:1.18em;align-items:center;justify-content:center;line-height:1}.visit-comma{align-self:flex-end;line-height:1;margin-bottom:.05em;color:#8ddce5}.policy-footer{margin:3.5rem 0 1rem;text-align:left;border-top:1px solid #ffffff1c;padding-top:1rem}.policy-footer nav{display:flex;flex-wrap:wrap;gap:.6rem 1.1rem}.policy-footer a{color:#a8bcc2;font-size:.75rem;text-decoration:none}.policy-footer a:hover,.policy-footer a:focus-visible{color:#a5f3fc;text-decoration:underline}@keyframes digit-enter{from{transform:translateY(80%);opacity:.25}to{transform:translateY(0);opacity:1}}@media(prefers-reduced-motion:reduce){.visit-digit.changed span{animation:none}}
     </style>
     <link rel="preload" href="/img/logo.gif" as="image">
     <link rel="preload" href="/app.css" as="style">
@@ -989,24 +989,49 @@
         function animateCounterTo(el, target) {
             const count = Math.max(0, Math.floor(Number(target) || 0));
             const formatted = count.toLocaleString('en-IN');
-            const previous = el.dataset.formatted || '';
+            const digits = String(count);
+            const previous = el.dataset.counterDigits || '0';
+            const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
             el.replaceChildren();
-            Array.from(formatted).forEach(function (character, index) {
+            let position = 0;
+            Array.from(formatted).forEach(function (character) {
                 const item = document.createElement('span');
                 item.setAttribute('aria-hidden', 'true');
                 if (character === ',') {
                     item.className = 'visit-comma';
                     item.textContent = character;
-                } else {
-                    const oldIndex = previous.length - (formatted.length - index);
-                    item.className = 'visit-digit' + (previous && previous[oldIndex] !== character ? ' changed' : '');
-                    const digit = document.createElement('span');
-                    digit.textContent = character;
-                    item.appendChild(digit);
+                    el.appendChild(item);
+                    return;
                 }
+                const place = digits.length - position - 1;
+                const oldIndex = previous.length - place - 1;
+                const start = oldIndex >= 0 ? Number(previous[oldIndex]) : 0;
+                const end = Number(character);
+                const changed = !el.dataset.counterDigits || start !== end;
+                item.className = 'visit-digit';
+                const strip = document.createElement('span');
+                strip.className = 'digit-strip';
+                // The units wheel makes the most turns; each wheel to its left turns less.
+                const extraTurns = changed && !reduceMotion ? Math.max(0, 4 - place) : 0;
+                const steps = changed && !reduceMotion ? ((end - start + 10) % 10) + extraTurns * 10 : 0;
+                const first = steps ? start : end;
+                for (let i = 0; i <= steps; i++) {
+                    const cell = document.createElement('span');
+                    cell.className = 'digit-cell';
+                    cell.textContent = String((first + i) % 10);
+                    strip.appendChild(cell);
+                }
+                item.appendChild(strip);
                 el.appendChild(item);
+                if (steps) {
+                    strip.animate([
+                        { transform: 'translateY(0)' },
+                        { transform: 'translateY(-' + (steps * 1.18) + 'em)' }
+                    ], { duration: 2000, easing: 'cubic-bezier(.18,.7,.18,1)', fill: 'forwards' });
+                }
+                position++;
             });
-            el.dataset.formatted = formatted;
+            el.dataset.counterDigits = digits;
             el.setAttribute('aria-label', 'Total visits: ' + formatted);
             displayedCount = count;
         }
