@@ -166,6 +166,16 @@ app.get("/health", (c) => {
   });
 });
 
+// Explicit policy routes: unknown paths still use the existing home fallback.
+const policyPages = ["privacy-policy", "terms-and-conditions", "refund-and-cancellation", "services-and-pricing", "contact"] as const;
+for (const page of policyPages) {
+  app.get(`/${page}`, (c) => {
+    const file = join(viewsDir, `${page}.html`);
+    if (!existsSync(file)) return c.notFound();
+    return c.html(readFileSync(file, "utf-8"), 200, { "Cache-Control": "public, max-age=30" });
+  });
+}
+
 // --- SPA / home ---
 app.get("*", (c) => {
   return c.html(htmlContent, 200, {
